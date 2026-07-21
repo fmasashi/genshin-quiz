@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>原神クイズ - Genshin Impact Quiz</title>
+  <meta name="description" content="原神の知識を試す4択クイズゲーム。キャラクター、元素、ストーリーなど幅広い問題に挑戦しよう！">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #e2b44d;
+      --gold-light: #f5d88e;
+      --gold-dark: #b8872e;
+      --bg-deep: #0a0e1a;
+      --bg-card: rgba(15, 22, 42, 0.85);
+      --bg-card-hover: rgba(25, 35, 65, 0.9);
+      --accent-anemo: #74c2a8;
+      --accent-pyro: #ef7938;
+      --accent-hydro: #4cc2f1;
+      --accent-electro: #b08fc2;
+      --accent-dendro: #a5c83b;
+      --accent-cryo: #9dd5e5;
+      --accent-geo: #f2b723;
+      --text-primary: #eae4d9;
+      --text-secondary: #9a9489;
+      --correct: #4ade80;
+      --wrong: #f87171;
+      --border-glow: rgba(226, 180, 77, 0.3);
+      --font: 'Noto Sans JP', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(116, 194, 168, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(176, 143, 194, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(226, 180, 77, 0.06) 0%, transparent 50%);
+      z-index: 0;
+      animation: bgShift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgShift { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    .particles { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .particle {
+      position: absolute; width: 3px; height: 3px; background: var(--gold);
+      border-radius: 50%; opacity: 0; animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.6; } 90% { opacity: 0.3; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    .container {
+      position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 12px 20px;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+
+    /* ===== SCREEN FLASH OVERLAY ===== */
+    .screen-flash {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; z-index: 99; opacity: 0;
+      transition: opacity 0.15s ease-out;
+    }
+    .screen-flash.correct-flash {
+      box-shadow: inset 0 0 80px 20px rgba(74, 222, 128, 0.4);
+      border: 3px solid rgba(74, 222, 128, 0.6);
+      opacity: 1;
+    }
+    .screen-flash.wrong-flash {
+      box-shadow: inset 0 0 80px 20px rgba(248, 113, 113, 0.4);
+      border: 3px solid rgba(248, 113, 113, 0.6);
+      opacity: 1;
+    }
+
+    /* ===== START SCREEN ===== */
+    #start-screen { text-align: center; animation: fadeInUp 0.8s ease-out; width: 100%; }
+
+    .logo-icon { width: 60px; height: 60px; margin: 0 auto 10px; }
+    .logo-icon::before {
+      content: '✦'; font-size: 48px; color: var(--gold);
+      text-shadow: 0 0 30px rgba(226, 180, 77, 0.5); animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+
+    .logo-title {
+      font-size: 32px; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 4px; margin-bottom: 4px;
+    }
+    .logo-subtitle { font-size: 12px; color: var(--text-secondary); letter-spacing: 6px; text-transform: uppercase; }
+
+    .settings-section { margin: 14px 0 6px; }
+    .section-label {
+      font-size: 11px; color: var(--text-secondary); letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    /* Difficulty */
+    .difficulty-options { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .diff-btn {
+      padding: 7px 20px; border: 1px solid var(--border-glow); background: var(--bg-card);
+      color: var(--text-primary); border-radius: 8px; font-family: var(--font);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .diff-btn:hover { background: var(--bg-card-hover); border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(226, 180, 77, 0.2); }
+    .diff-btn.active {
+      background: linear-gradient(135deg, rgba(226, 180, 77, 0.2), rgba(226, 180, 77, 0.1));
+      border-color: var(--gold); color: var(--gold-light); box-shadow: 0 0 20px rgba(226, 180, 77, 0.15);
+    }
+
+    /* Genre chips */
+    .genre-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .genre-chip {
+      padding: 6px 14px; border: 1px solid rgba(255,255,255,0.08); background: var(--bg-card);
+      color: var(--text-secondary); border-radius: 24px; font-family: var(--font);
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+      backdrop-filter: blur(10px); display: flex; align-items: center; gap: 5px;
+      user-select: none;
+    }
+    .genre-chip:hover { background: var(--bg-card-hover); border-color: rgba(226, 180, 77, 0.3); }
+    .genre-chip.active {
+      background: linear-gradient(135deg, rgba(226, 180, 77, 0.15), rgba(226, 180, 77, 0.08));
+      border-color: var(--gold); color: var(--gold-light);
+    }
+    .genre-chip .chip-count {
+      font-size: 11px; background: rgba(255,255,255,0.06); padding: 2px 7px;
+      border-radius: 10px; margin-left: 2px;
+    }
+    .genre-chip.active .chip-count { background: rgba(226, 180, 77, 0.2); }
+
+    /* Question count */
+    .count-options { display: flex; gap: 10px; justify-content: center; }
+    .count-btn {
+      padding: 6px 18px; height: 34px; border: 1px solid rgba(255,255,255,0.08); background: var(--bg-card);
+      color: var(--text-secondary); border-radius: 8px; font-family: var(--font);
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+    }
+    .count-btn:hover { border-color: var(--gold); color: var(--text-primary); }
+    .count-btn.active {
+      background: linear-gradient(135deg, rgba(226, 180, 77, 0.2), rgba(226, 180, 77, 0.1));
+      border-color: var(--gold); color: var(--gold-light);
+    }
+
+    .available-count {
+      font-size: 12px; color: var(--text-secondary); margin-top: 6px;
+    }
+    .available-count span { color: var(--gold); font-weight: 700; }
+
+    .start-btn {
+      margin-top: 18px; padding: 12px 50px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: var(--bg-deep); border: none; border-radius: 50px; font-family: var(--font);
+      font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 4px;
+      transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .start-btn::after {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg); animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+    .start-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(226, 180, 77, 0.4); }
+    .start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ===== QUIZ SCREEN ===== */
+    #quiz-screen { width: 100%; display: none; }
+
+    .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding: 0 2px; }
+    .quiz-header-left { display: flex; align-items: center; gap: 12px; }
+    .question-counter { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .question-counter span { color: var(--gold); font-weight: 700; font-size: 15px; }
+    .quiz-tally { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
+    .tally-correct { color: var(--correct); }
+    .tally-wrong { color: var(--wrong); }
+    .quit-btn {
+      background: none; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary);
+      font-family: var(--font); font-size: 11px; padding: 3px 10px; border-radius: 6px;
+      cursor: pointer; transition: all 0.2s ease; letter-spacing: 1px;
+    }
+    .quit-btn:hover { border-color: var(--wrong); color: var(--wrong); }
+
+    .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(226, 180, 77, 0.3); }
+
+    .question-card {
+      background: var(--bg-card); border: 1px solid rgba(226, 180, 77, 0.1);
+      border-radius: 10px; padding: 10px 16px; margin-bottom: 8px;
+      backdrop-filter: blur(20px); position: relative; overflow: hidden; animation: fadeInUp 0.4s ease-out;
+    }
+    .question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+    .question-meta {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+    }
+    .question-category {
+      display: inline-block; font-size: 9px; color: var(--text-secondary); letter-spacing: 1px;
+      padding: 2px 7px;
+      background: rgba(255,255,255,0.04); border-radius: 10px; font-weight: 500;
+    }
+    .question-difficulty-badge {
+      display: inline-block; font-size: 9px; letter-spacing: 1px;
+      padding: 2px 7px; border-radius: 10px; font-weight: 600;
+    }
+    .badge-easy { color: var(--accent-anemo); background: rgba(116, 194, 168, 0.1); }
+    .badge-normal { color: var(--accent-hydro); background: rgba(76, 194, 241, 0.1); }
+    .badge-hard { color: var(--accent-pyro); background: rgba(239, 121, 56, 0.1); }
+
+    .question-text { font-size: 16px; font-weight: 700; line-height: 1.45; color: var(--text-primary); }
+
+    .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .option-btn {
+      width: 100%; padding: 10px 12px; background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;
+      color: var(--text-primary); font-family: var(--font); font-size: 13px; font-weight: 500;
+      text-align: left; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(10px);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .option-btn:hover:not(.disabled) {
+      background: var(--bg-card-hover); border-color: rgba(226, 180, 77, 0.3);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .option-label {
+      width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+      border-radius: 5px; background: rgba(255,255,255,0.05);
+      font-size: 11px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; transition: all 0.2s ease;
+    }
+    .option-btn:hover:not(.disabled) .option-label { background: rgba(226, 180, 77, 0.2); color: var(--gold); }
+    .option-btn.correct { background: rgba(74, 222, 128, 0.1); border-color: var(--correct); box-shadow: 0 0 15px rgba(74, 222, 128, 0.1); }
+    .option-btn.correct .option-label { background: var(--correct); color: var(--bg-deep); }
+    .option-btn.wrong { background: rgba(248, 113, 113, 0.1); border-color: var(--wrong); box-shadow: 0 0 15px rgba(248, 113, 113, 0.1); }
+    .option-btn.wrong .option-label { background: var(--wrong); color: var(--bg-deep); }
+    .option-btn.disabled { cursor: default; opacity: 0.5; }
+    .option-btn.correct.disabled, .option-btn.wrong.disabled { opacity: 1; }
+
+    .explanation {
+      margin-top: 8px; padding: 8px 12px; background: rgba(226, 180, 77, 0.05);
+      border: 1px solid rgba(226, 180, 77, 0.15); border-radius: 8px;
+      font-size: 12px; line-height: 1.5; color: var(--text-secondary); animation: fadeInUp 0.3s ease-out; display: none;
+    }
+    .explanation .exp-label { color: var(--gold); font-weight: 700; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; display: block; }
+
+    .next-btn {
+      display: none; margin: 8px auto 0; padding: 8px 36px;
+      background: linear-gradient(135deg, rgba(226, 180, 77, 0.2), rgba(226, 180, 77, 0.1));
+      border: 1px solid var(--gold); color: var(--gold-light); border-radius: 50px;
+      font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s ease; letter-spacing: 2px;
+    }
+    .next-btn:hover { background: linear-gradient(135deg, rgba(226, 180, 77, 0.3), rgba(226, 180, 77, 0.15)); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(226, 180, 77, 0.2); }
+
+    .timer-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
+    .timer-fill { height: 100%; width: 100%; border-radius: 2px; transition: width 0.05s linear, background-color 0.5s ease; background: var(--accent-anemo); }
+    .timer-fill.warning { background: var(--accent-pyro); }
+
+    /* ===== RESULT SCREEN ===== */
+    #result-screen { display: none; text-align: center; width: 100%; animation: fadeInUp 0.8s ease-out; }
+    .result-card {
+      background: var(--bg-card); border: 1px solid rgba(226, 180, 77, 0.15);
+      border-radius: 20px; padding: 32px 28px; backdrop-filter: blur(20px); position: relative; overflow: hidden;
+    }
+    .result-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-pyro), var(--gold), var(--accent-electro)); }
+
+    .result-rank { font-size: 16px; color: var(--text-secondary); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+    .result-title {
+      font-size: 32px; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 32px;
+    }
+
+    .result-score-circle { width: 130px; height: 130px; margin: 0 auto 20px; position: relative; display: flex; align-items: center; justify-content: center; }
+    .result-score-circle svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+    .result-score-circle circle { fill: none; stroke-width: 6; }
+    .circle-bg { stroke: rgba(255,255,255,0.05); }
+    .circle-fill { stroke: var(--gold); stroke-linecap: round; stroke-dasharray: 439.82; stroke-dashoffset: 439.82; transition: stroke-dashoffset 1.5s ease-out; }
+
+    .result-score-number { font-size: 36px; font-weight: 900; color: var(--gold-light); }
+    .result-score-number small { font-size: 16px; color: var(--text-secondary); font-weight: 500; }
+
+    .result-stats { display: flex; justify-content: center; gap: 40px; margin: 16px 0 24px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 700; }
+    .stat-value.correct-val { color: var(--correct); }
+    .stat-value.wrong-val { color: var(--wrong); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; letter-spacing: 1px; }
+
+    .result-message { font-size: 15px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 36px; }
+
+    .result-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .retry-btn {
+      padding: 16px 48px; background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: var(--bg-deep); border: none; border-radius: 50px; font-family: var(--font);
+      font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 3px; transition: all 0.3s ease;
+    }
+    .retry-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(226, 180, 77, 0.4); }
+    .back-btn {
+      padding: 16px 36px; background: transparent;
+      border: 1px solid var(--border-glow); color: var(--gold-light); border-radius: 50px;
+      font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s ease; letter-spacing: 2px;
+    }
+    .back-btn:hover { background: rgba(226, 180, 77, 0.08); transform: translateY(-2px); }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .shake { animation: shake 0.5s ease-in-out; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 10% { transform: translateX(-12px); } 30% { transform: translateX(10px); } 50% { transform: translateX(-8px); } 70% { transform: translateX(6px); } 90% { transform: translateX(-3px); } }
+
+    .confetti-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti { position: absolute; width: 8px; height: 8px; top: -10px; animation: confettiFall linear forwards; }
+    @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+    @media (max-width: 600px) {
+      .container { padding: 16px; }
+      .logo-title { font-size: 30px; }
+      .question-text { font-size: 17px; }
+      .option-btn { padding: 14px 18px; font-size: 14px; }
+      .result-card { padding: 32px 20px; }
+      .difficulty-options { gap: 8px; }
+      .diff-btn { padding: 8px 18px; font-size: 13px; }
+      .genre-chip { padding: 7px 14px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="screen-flash" id="screen-flash"></div>
+
+  <div class="container">
+    <!-- START SCREEN -->
+    <div id="start-screen">
+      <div class="logo-area">
+        <div class="logo-icon"></div>
+        <h1 class="logo-title">原神クイズ</h1>
+        <p class="logo-subtitle">Genshin Impact Quiz</p>
+      </div>
+
+      <div class="settings-section">
+        <p class="section-label">難易度</p>
+        <div class="difficulty-options">
+          <button class="diff-btn active" data-diff="easy">初級</button>
+          <button class="diff-btn" data-diff="normal">中級</button>
+          <button class="diff-btn" data-diff="hard">上級</button>
+          <button class="diff-btn" data-diff="all">全難易度</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <p class="section-label">ジャンル（複数選択可）</p>
+        <div class="genre-grid" id="genre-grid"></div>
+      </div>
+
+      <div class="settings-section">
+        <p class="section-label">出題数</p>
+        <div class="count-options" id="count-options"></div>
+        <p class="available-count">選択中の問題プール: <span id="pool-count">0</span>問</p>
+      </div>
+
+      <button class="start-btn" id="start-btn">スタート</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen">
+      <div class="quiz-header">
+        <div class="quiz-header-left">
+          <div class="question-counter">Q.<span id="q-current">1</span> / <span id="q-total">10</span></div>
+          <div class="quiz-tally"><span class="tally-correct">○<span id="tally-correct">0</span></span><span class="tally-wrong">×<span id="tally-wrong">0</span></span></div>
+        </div>
+        <button class="quit-btn" id="quit-btn">中断</button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+      <div class="question-card" id="question-card">
+        <div class="question-meta">
+          <span class="question-category" id="q-category">キャラクター</span>
+          <span class="question-difficulty-badge" id="q-diff-badge"></span>
+        </div>
+        <p class="question-text" id="q-text"></p>
+      </div>
+      <div class="options-container" id="options-container"></div>
+      <div class="explanation" id="explanation">
+        <span class="exp-label">解説</span>
+        <p id="exp-text"></p>
+      </div>
+      <button class="next-btn" id="next-btn">次の問題 →</button>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen">
+      <div class="result-card">
+        <p class="result-rank" id="result-rank">RANK</p>
+        <h2 class="result-title" id="result-title">称号</h2>
+        <div class="result-score-circle">
+          <svg viewBox="0 0 160 160">
+            <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
+            <circle class="circle-fill" id="circle-fill" cx="80" cy="80" r="70"></circle>
+          </svg>
+          <div class="result-score-number">
+            <span id="result-score">0</span><small> / <span id="result-total">10</span></small>
+          </div>
+        </div>
+        <div class="result-stats">
+          <div class="stat-item"><div class="stat-value correct-val" id="stat-correct">0</div><div class="stat-label">正解</div></div>
+          <div class="stat-item"><div class="stat-value wrong-val" id="stat-wrong">0</div><div class="stat-label">不正解</div></div>
+        </div>
+        <p class="result-message" id="result-message"></p>
+        <div class="result-buttons">
+          <button class="retry-btn" id="retry-btn">もう一度</button>
+          <button class="back-btn" id="back-btn">設定に戻る</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// =======================================================================
+//  QUIZ DATA – ジャンル × 難易度
+// =======================================================================
+const GENRES = {
+  character: { label: "キャラクター" },
+  element:   { label: "元素・反応" },
+  story:     { label: "ストーリー・世界観" },
+  region:    { label: "地域・探索" },
+  weapon:    { label: "武器・聖遺物" },
+  system:    { label: "システム" },
+};
+
+const quizData = {
+  // ────────────── キャラクター ──────────────
+  character: {
+    easy: [
+      { q: "主人公（旅人）の双子の兄妹の名前は？", o: ["空と蛍","鍾離と甘雨","刻晴と行秋","ディルックとジン"], a: 0, e: "旅人の兄は「空」、妹は「蛍」です。ゲーム開始時に選ばなかった方は「アビス教団」の王子/王女として登場し、物語の大きな鍵を握ります。" },
+      { q: "パイモンの自称は？", o: ["パイモン様","オイラ","ボク","ワタシ"], a: 1, e: "パイモンは自分のことを「オイラ」と呼びます。英語では自身の名前を呼びますが、日本語版の「オイラ」は独特でプレイヤーに親しまれています。旅人の最高のガイドです。" },
+      { q: "バーバラの職業は？", o: ["騎士","シスター","商人","冒険者"], a: 1, e: "バーバラはモンドの西風教会の祈祷牧師（シスター）であり、モンドのアイドル的な存在です。ジン代理団長の実の妹でもあります。" },
+      { q: "ウェンティの正体は？", o: ["普通の吟遊詩人","風神バルバトス","旅人の友達","天理の使者"], a: 1, e: "ウェンティの正体は風神バルバトスです。普段はモンドの酒場でリンゴ酒を飲む吟遊詩人として活動しており、神であることを隠しています。" },
+      { q: "璃月の岩神の名前は？", o: ["ウェンティ","鍾離","雷電将軍","ナヒーダ"], a: 1, e: "鍾離は岩神モラクスの人間の姿（神の心を譲渡した後の姿）です。往生堂の客卿として働きながら、凡人としての生活を楽しんでいます。" },
+      { q: "タルタリヤが所属する組織は？", o: ["西風騎士団","千岩軍","ファデュイ","璃月七星"], a: 2, e: "タルタリヤ（公子）はファデュイ執行官の第11位です。戦闘狂でありながら、故郷にいる弟のテウセルには優しい良き兄という一面も持っています。" },
+      { q: "クレーの得意な元素は？", o: ["風","炎","雷","岩"], a: 1, e: "クレーは炎元素のキャラクターで、自身で作った爆弾を使った戦闘スタイルが特徴です。西風騎士団の「火花騎士」としてモンドの魚を爆破してはジンに怒られています。" },
+      { q: "Ver6.6で実装された、魔女会「ヘクセンツィルケル」のメンバーであるキャラクターは？", o: ["アリス","ニコ（Nicole）","レインドット","バーンデビーナ"], a: 1, e: "Ver6.6にて実装された「ニコ（Nicole）」は炎元素の法器キャラクターです。魔女会の一員として、チーム全体の攻撃力アップやシールド付与を行う強力なサポート能力を持っています。" },
+      { q: "フィッシュルの本名は？", o: ["アミー","リサ","モナ","ジン"], a: 0, e: "フィッシュルの本名は「アミー」です。『フィッシュル・フォン・ルフシュロス・ナフィードット』という中二病的な設定を貫いており、オズという喋る鴉を従えています。" },
+      { q: "刻晴の元素は？", o: ["炎","水","雷","風"], a: 2, e: "刻晴（こくせい）は雷元素の片手剣キャラクターで、璃月七星の「玉衡星（ぎょくこう）」です。神に頼らず人間の手で璃月を導くべきだと考えています。" },
+    ],
+    normal: [
+      { q: "甘雨は何と人間のハーフ？", o: ["仙獣・麒麟","龍","鳳凰","天狐"], a: 0, e: "甘雨は仙獣の麒麟と人間のハーフで、璃月七星の秘書「月海亭」の使者として3000年以上働いています。ベジタリアンで昼寝が好きです。" },
+      { q: "胡桃が経営する店の名前は？", o: ["万民堂","往生堂","不卜庵","和裕茶館"], a: 1, e: "胡桃（フータオ）は璃月の葬儀屋「往生堂」の第77代堂主です。鍾離を客卿として雇っており、詩を作るのが得意で行秋とは詩の友でもあります。" },
+      { q: "八重神子の種族は？", o: ["人間","天狐","鬼","龍"], a: 1, e: "八重神子は天狐（白辰の血脈）の一族で、鳴神大社の宮司を務めています。八重堂の編集長としても活動しており、ライトノベル出版に熱心です。" },
+      { q: "楓原万葉の出身国は？", o: ["モンド","璃月","稲妻","スメール"], a: 2, e: "楓原万葉（かえではらかずは）は稲妻出身の浪人で、目狩り令を逃れて南十字船隊（北斗）の船に乗り込み、モンドの冒険者と行動を共にしていました。" },
+      { q: "ディシアの元素は？", o: ["炎","岩","草","雷"], a: 0, e: "ディシアは炎元素の両手剣キャラクターで、スメールの砂漠出身の傭兵「エルマイト旅団」の一員です。「熾鬣の獅子」の異名を持ちます。" },
+      { q: "アルハイゼンの役職は？", o: ["大賢者","書記官","レンジャー長","学者"], a: 1, e: "アルハイゼンはスメール教令院の「書記官」です。一時期は代理賢者を務めましたが、面倒事を嫌いすぐに元の書記官に戻りました。" },
+      { q: "宵宮の職業は？", o: ["料理人","花火職人","鍛冶師","巫女"], a: 1, e: "宵宮（よいみや）は稲妻の「長野原花火店」の店主で、天才花火職人です。夏祭りなどを彩り、子供たちからも大人気のキャラクターです。" },
+      { q: "Ver6.xのナド・クライ編で物語の鍵を握り、プレイアブル実装もされたファデュイ執行官第三位は？", o: ["隊長カピターノ","少女コロンビーナ","博士ドットーレ","富者パンタローネ"], a: 1, e: "少女コロンビーナはナド・クライ編「空月の歌」で月の神に関わる重要な役割を果たし、Luna 4（2026年1月）でプレイアブル実装されました。可憐な見た目に反して、執行官の中でも別格の実力と謎を秘めています。" },
+      { q: "ナヴィアが率いる組織の名前は？", o: ["冒険者協会","棘薔薇の会","ファデュイ","メロピデ要塞"], a: 1, e: "ナヴィアはフォンテーヌの民間組織「棘薔薇の会（スピナ・ディ・ロスラ）」の現会長です。父カラスの跡を継ぎ、人々のために奔走しています。" },
+      { q: "シグウィンの種族は？", o: ["人間","メリュジーヌ","純水精霊","天使"], a: 1, e: "シグウィンはメリュジーヌ族の一員で、メロピデ要塞の看護師長を務めています。他のメリュジーヌとは少し異なる人間寄りな容姿を持っています。" },
+    ],
+    hard: [
+      { q: "アルベドの「創造」の力の源は何？", o: ["神の目","黒土の力（カーンルイアの錬金術）","天空の琴","仙力"], a: 1, e: "アルベドはカーンルイアの錬金術師「黄金（レインドット）」によって「黒土」から創られたホムンクルス（人造人間）です。ドゥリンとは兄弟のような関係です。" },
+      { q: "雷電将軍の本名（真名）は？", o: ["雷電影","雷電眞","バアルゼブル","バアル"], a: 2, e: "現在の雷神（影）の本名は「バアルゼブル」です。先代雷神である双子の姉（眞）が「バアル」であり、姉の死後にその名と地位を受け継ぎました。" },
+      { q: "散兵（放浪者）が最初に名乗った、あるいは呼ばれた名前は？", o: ["国崩","傾奇者","空","雷電悟"], a: 1, e: "彼は雷電将軍が創った人形ですが、名を捨ててたたら砂を彷徨っていた頃は「傾奇者」と呼ばれていました。「国崩」は後に復讐のために自ら名乗った名前です。" },
+      { q: "ナヒーダが幽閉されていた場所は？", o: ["ジャングル","教令院の地下","浄善宮の一室","砂漠の遺跡"], a: 2, e: "ナヒーダ（クラクサナリデビ）は誕生直後から500年間、教令院の賢者たちによってスメールシティの「浄善宮」に幽閉されていました。" },
+      { q: "リネとリネットの育ての親（「お父様」）は誰？", o: ["アルルカン","道化ピエロ","博士ドットーレ","隊長カピターノ"], a: 0, e: "二人は壁炉の家（ハウス・オブ・ハース）の出身で、ファデュイ執行官第4位「召使」アルルカンを「お父様」と呼び慕っています。" },
+      { q: "フリーナの真の正体は？", o: ["水神本人","水神フォカロルスが神格を切り離した人間","純水精霊","セレスティアの使者"], a: 1, e: "フリーナは水神フォカロルスが、天理を欺き「預言」を覆す計画のために、自身の神格を切り離して創り出した「人間」の姿でした。" },
+      { q: "稲妻出身の千織がフォンテーヌで営むブティックの名前は？", o: ["千織屋","織千屋","緋織堂","千鶴庵"], a: 0, e: "千織は稲妻出身の天才ファッションデザイナーで、フォンテーヌで「千織屋」を営んでいます。目狩り令・鎖国令の頃に稲妻を離れ、以来故郷には戻っていません。" },
+      { q: "カーヴェの元素と得意なことは？", o: ["岩・彫刻","草・建築","水・音楽","風・絵画"], a: 1, e: "カーヴェは草元素の両手剣キャラクターで、スメール教令院・妙論派の天才建築家です。アルカサルザライパレスを設計しましたが、現在は借金を抱えアルハイゼンと同居しています。" },
+      { q: "白朮の体が弱い理由は？", o: ["生まれつき","長生と契約し生命力を分け与えているため","呪いを受けた","深淵に蝕まれた"], a: 1, e: "白朮は首に巻いた白蛇の仙獣「長生」と契約しており、患者の病や傷を癒やす代償として自身の生命力を分け与えているため、常に病弱です。" },
+      { q: "エウルアの家系は何の末裔？", o: ["旧貴族ローレンス家","グンヒルド家","ラグヴィンド家","アルベリヒ家"], a: 0, e: "エウルアは、かつてモンドを圧政で支配し西風騎士団に追放された「旧貴族ローレンス家」の末裔です。「復讐」を口癖にしつつも、実はモンドを深く愛しています。" },
+    ]
+  },
+
+  // ────────────── 元素・反応 ──────────────
+  element: {
+    easy: [
+      { q: "原神に登場する元素は全部でいくつ？", o: ["5つ","6つ","7つ","8つ"], a: 2, e: "炎（パイロ）・水（ハイドロ）・雷（エレクトロ）・氷（クライオ）・風（アネモ）・岩（ジオ）・草（デンドロ）の7元素です。テイワットの法則の基盤です。" },
+      { q: "「蒸発」反応を起こす元素の組み合わせは？", o: ["炎 + 水","炎 + 氷","水 + 雷","水 + 氷"], a: 0, e: "炎と水が反応すると「蒸発」が発生し、ダメージボーナスが得られます。炎に水を当てた方がボーナス倍率が高い（2.0倍）です。" },
+      { q: "「凍結」反応を起こす元素の組み合わせは？", o: ["氷 + 風","氷 + 水","氷 + 岩","氷 + 雷"], a: 1, e: "氷と水が組み合わさると「凍結」が起こり、敵の動きを完全に止めます。ダメージは増えませんが、安全に攻撃できる強力な状態異常です。" },
+      { q: "風元素の英語名は？", o: ["Pyro","Anemo","Cryo","Geo"], a: 1, e: "風元素は英語で「Anemo（アネモ）」です。ギリシャ語で風を意味するアネモスに由来します。" },
+      { q: "「過負荷」反応を起こす元素の組み合わせは？", o: ["炎 + 雷","炎 + 水","雷 + 水","雷 + 氷"], a: 0, e: "炎と雷が反応すると「過負荷」が発生し、爆発による範囲炎ダメージを与えて敵を吹き飛ばします。岩の盾を割るのにも有効です。" },
+      { q: "「拡散」反応を起こす元素は？", o: ["風 + 他の元素","岩 + 他の元素","草 + 他の元素","氷 + 他の元素"], a: 0, e: "風元素が炎・水・雷・氷のいずれかに触れると「拡散」が発生し、周囲の敵にその元素ダメージを広げます。翠緑の影セットとの相性が抜群です。" },
+      { q: "岩元素の「結晶」反応で得られるものは？", o: ["攻撃力アップ","元素シールド","回復","元素エネルギー"], a: 1, e: "岩元素が炎・水・雷・氷と反応すると「結晶」が発生し、拾うとその元素に対する耐性が高いシールドを獲得できます。" },
+      { q: "「感電」反応を起こす元素の組み合わせは？", o: ["水 + 風","水 + 雷","水 + 氷","水 + 炎"], a: 1, e: "水と雷が反応すると「感電」が起こり、一定時間継続して雷ダメージを与えます。敵が密集していると連鎖的にダメージが広がります。" },
+    ],
+    normal: [
+      { q: "「超電導」反応の最大のメリットは？", o: ["攻撃力アップ","物理耐性ダウン","防御力ダウン","移動速度ダウン"], a: 1, e: "雷と氷の「超電導」は敵の物理耐性を40%下げます。エウルアやレザーなど、物理ダメージを主体とするキャラクターにとって必須の反応です。" },
+      { q: "「開花」反応を起こす元素の組み合わせは？", o: ["炎 + 草","水 + 草","雷 + 草","氷 + 草"], a: 1, e: "水と草で「開花」が発生し、フィールドに「草原核」が生成されます。草原核は一定時間で破裂するか、炎・雷を当てることで派生反応を起こします。" },
+      { q: "「燃焼」反応を起こす元素の組み合わせは？", o: ["炎 + 草","炎 + 風","炎 + 岩","炎 + 水"], a: 0, e: "炎と草が反応すると「燃焼」が起こり、継続的な炎ダメージを与え続けます。燃焼状態の敵は炎元素が付着し続けるため、溶解の起点にもなります。" },
+      { q: "元素熟知がダメージ量に影響しない反応はどれ？", o: ["蒸発","溶解","凍結","拡散"], a: 2, e: "凍結は敵を固定するだけでダメージ自体は発生しないため、元素熟知を上げても凍結によるダメージ追加はありません。" },
+      { q: "「溶解」反応で、氷状態の敵に炎で攻撃した時の基礎倍率は？", o: ["1.5倍","2倍","2.5倍","3倍"], a: 1, e: "氷に炎を当てると基礎2.0倍の溶解反応が起きます。逆に、炎状態の敵に氷を当てた場合は1.5倍の「逆溶解」となります。" },
+      { q: "「翠緑の影」4セットを装備した風キャラが拡散を起こした時の効果は？", o: ["拡散ダメージ+60%、かつ拡散元素の敵耐性-40%","拡散ダメージ+40%、かつ拡散元素の敵耐性-30%","拡散ダメージ+60%、かつ風元素ダメージ+15%","拡散ダメージ+40%、かつ拡散元素の敵耐性-40%"], a: 0, e: "翠緑の影4セットは拡散ダメージ+60%に加え、拡散した元素に対する敵の耐性を10秒間40%下げる、全聖遺物の中でも屈指の強力なデバフ効果です。正確な数値を覚えているかがカギです。" },
+      { q: "「烈開花」は草原核にどの元素を当てると発生する？", o: ["雷","炎","風","氷"], a: 1, e: "生成された草原核に炎元素を当てると「烈開花」が発生し、広範囲に強力な草元素ダメージを与えます。自傷ダメージもあるので注意が必要です。" },
+      { q: "「激化」反応のベースとなる「原激化」を起こす元素の組み合わせは？", o: ["草 + 雷","草 + 水","草 + 炎","草 + 風"], a: 0, e: "草と雷で「原激化」状態になります。この状態の敵にさらに雷を当てると超激化、草を当てると草激化となり、基礎ダメージが加算されます。" },
+    ],
+    hard: [
+      { q: "「氷砕き」はどの攻撃で発生する？", o: ["片手剣の通常攻撃","両手剣・落下攻撃・岩元素攻撃など","弓の狙い撃ち","法器の通常攻撃"], a: 1, e: "凍結状態の敵に対して、鈍器系攻撃（両手剣、落下攻撃、クレーの爆弾、岩元素攻撃）を当てると氷砕きが発生し、物理ダメージを与えて凍結を解除します。" },
+      { q: "蒸発反応の「逆蒸発」とは？", o: ["水に炎を当てる（2倍）","炎に水を当てる（2倍）","炎に水を当てる（1.5倍）","水に炎を当てる（1.5倍）"], a: 3, e: "逆蒸発は、水元素が付着した敵に炎元素で攻撃する反応（基礎倍率1.5倍）です。倍率は低いですが、水元素の付着を消費しきらないため連続して反応を起こしやすいのが特徴です。" },
+      { q: "元素チャージ効率のステータスが影響するのは？", o: ["元素爆発のエネルギー獲得量","元素スキルのダメージ","元素反応のダメージ","元素スキルのクールタイム"], a: 0, e: "元素チャージ効率は、元素粒子やオーブを吸収した際に獲得できる元素エネルギーの量に影響し、元素爆発の回転率を上げるために重要なステータスです。" },
+      { q: "「超開花」と「烈開花」の挙動の違いは？", o: ["超開花は単体追尾弾・烈開花は範囲爆発","超開花は範囲爆発・烈開花は単体追尾","どちらも範囲爆発","どちらも単体追尾"], a: 0, e: "超開花（雷）は草原核がヴァインショットとなり近くの敵を自動追尾します。烈開花（炎）は草原核がその場で範囲爆発を起こします。" },
+      { q: "風元素の拡散において、複数の元素を同時に拡散することはできる？", o: ["できない","2つまで可能","付着している全元素可能","風元素と同じ元素のみ"], a: 1, e: "拡散反応は同時に最大2つの元素を拡散させることができます（水雷の共存状態など）。これを利用して2種類の翠緑デバフを同時にかける高等テクニック（ダブル拡散）があります。" },
+      { q: "原神のダメージ計算において、「ダメージバフ（元素バフ等）」と「会心ダメージ」はどう計算される？", o: ["乗算（別々の枠）で計算される","加算（同じ枠）で計算される","会心が先に計算される","ダメージバフが先に計算される"], a: 0, e: "攻撃力 × (1 + ダメージバフ) × (1 + 会心ダメージ) のように、それぞれ独立した乗算枠として計算されるため、特定のステータスだけを盛るよりバランス良く上げる方が最終ダメージが伸びます。" },
+      { q: "「結晶」反応で生成されるシールドの、特定の元素に対する吸収効率は？", o: ["全元素に対して250%","反応した対応元素に対して250%","全元素に均等（100%）","元素耐性は付かない"], a: 1, e: "例えば炎と岩でできた炎結晶のシールドは、炎元素ダメージに対してのみ250%の吸収効率を持ち、他の属性攻撃には通常の100%の耐久値となります。" },
+      { q: "特定の元素付着を解除するために、自分自身に元素を付着させるスキルの効果を何と呼ぶ？", o: ["セルフ付着（自己付着）","元素剥がし","クレンジング（デバフ解除）","元素共鳴"], a: 0, e: "バーバラのスキルやベネットの爆発など、自分自身に元素を付着させることで、敵から受けた厄介な元素付着（スタミナ減少など）を反応させて打ち消すことができます。" },
+    ]
+  },
+
+  // ────────────── ストーリー・世界観 ──────────────
+  story: {
+    easy: [
+      { q: "原神の舞台となる世界の名前は？", o: ["モンド","テイワット","璃月","セレスティア"], a: 1, e: "テイワットは原神の世界全体の名称です。空に浮かぶ天空島セレスティアの下に7つの国が存在しています。" },
+      { q: "原神のメインストーリーの名前は？", o: ["伝説任務","魔神任務","世界任務","依頼任務"], a: 1, e: "メインストーリーは「魔神任務（アーコンクエスト）」と呼ばれ、旅人が生き別れの兄妹を探しながら七国を巡る旅が描かれます。" },
+      { q: "七つの国を治める神々のことを何と呼ぶ？", o: ["七天神像","七神","深淵教団","俗世の七執政"], a: 3, e: "七神は正式には「俗世の七執政」と呼ばれます。魔神戦争を勝ち抜き、天空島から七国を統治する権限を与えられた存在です。" },
+      { q: "テイワットの通貨の名称は？", o: ["ゴールド","モラ","ジュエル","コイン"], a: 1, e: "モラは岩神モラクスが自身の血肉（神の力）を用いて作り出した通貨で、テイワット全土の共通通貨であると同時に錬金術の触媒でもあります。" },
+      { q: "氷の神（氷の女皇）が治める、ファデュイの本拠地でもある国は？", o: ["スネージナヤ","フォンテーヌ","ナタ","カーンルイア"], a: 0, e: "スネージナヤは氷の女皇が治める極寒の国で、ファデュイの本拠地です。なおVer6.0で旅人が訪れたのは辺境の地「ナド・クライ」であり、スネージナヤ本国はその先の物語の舞台とされています。" },
+      { q: "モンドの別名は？", o: ["岩の国","風の国","雷の国","水の国"], a: 1, e: "モンドは「風の国」と呼ばれ、風神バルバトスが治める牧歌的で自由な都市です。西風騎士団が治安を守っています。" },
+      { q: "「深淵（アビス）」とは何？", o: ["ダンジョンの名前","テイワットに仇なす闇の力・勢力","ボスの名前","武器の種類"], a: 1, e: "深淵（アビス）はテイワットの地下深くから這い寄る闇の力であり、世界を滅ぼそうとする深淵教団や魔物の根源です。" },
+      { q: "「冒険者協会」の本部はどこにある？", o: ["モンド","璃月","スネージナヤ","不明"], a: 2, e: "冒険者協会の本部は氷の国スネージナヤにあります。キャサリンはスネージナヤで作られたバイオニック人形であることが仄めかされています。" },
+    ],
+    normal: [
+      { q: "稲妻で「鎖国令」を出した神は誰？", o: ["ナヒーダ","雷電将軍","鍾離","フリーナ"], a: 1, e: "雷電将軍が「永遠」を追求するために、外部との交流を絶つ鎖国令と、神の目を奪う「目狩り令」を発令しました。" },
+      { q: "500年前に滅亡した神を持たない国「カーンルイア」が滅びた原因は？", o: ["天理による裁き","自然災害","元素の暴走","魔神戦争"], a: 0, e: "カーンルイアは高度な科学技術と錬金術を持っていましたが、深淵の力を呼び覚ました結果、天理（セレスティア）と七神によって滅ぼされました。" },
+      { q: "スメールの前・大賢者の名前は？", o: ["アザール","アルハイゼン","サイラス","ティナリ"], a: 0, e: "アザールはスメール教令院の前大賢者で、草神ナヒーダを幽閉し、散兵を新たな神として創り出そうと画策しましたが旅人たちに阻止されました。" },
+      { q: "「璃月七星」とは何？", o: ["7人の仙人","璃月を統治する7人の有力な商人","7つの宝石","7つの星座"], a: 1, e: "璃月七星は璃月港の商業・政治を統治する7人の有力者で、天権の凝光や玉衡の刻晴などが名を連ねています。" },
+      { q: "フォンテーヌの裁判所（歌劇場）の名前は？", o: ["最高裁判所","オペラ・エピクレーズ","正義の殿堂","フォンテーヌ法院"], a: 1, e: "フォンテーヌの「オペラ・エピクレーズ」は、裁判そのものが演劇として消費される巨大な歌劇場兼裁判所であり、諭示裁定カーディナルが置かれています。" },
+      { q: "「魔神戦争」とはテイワットの歴史でいつ頃の出来事？", o: ["100年前","500年前","2000年以上前","5000年前"], a: 2, e: "魔神戦争は約2000年以上前にテイワット全土で起こった、七神の座を巡る凄惨な生存競争です。この戦いの勝者が現在の七神となりました。" },
+      { q: "「ファデュイ（愚人衆）」とは何の組織？", o: ["モンドの騎士団","スネージナヤの外交使節団（実質的な軍事組織）","冒険者組合","商人ギルド"], a: 1, e: "ファデュイはスネージナヤの氷神・氷の女皇の命で動く巨大な組織で、表向きは外交使節団ですが、実態は七国に干渉する強大な軍事・工作組織です。" },
+      { q: "「目狩り令」で民衆から奪われたものは？", o: ["武器","元素スキル","神の目","モラ"], a: 2, e: "目狩り令は稲妻で発令された法令で、民衆の「神の目」を強制的に没収し、千手百目神像に嵌め込むというものでした。" },
+    ],
+    hard: [
+      { q: "「第四降臨者」とされる存在は誰？", o: ["旅人","パイモン","天理","ダインスレイヴ"], a: 0, e: "テイワットの法則に属さない外の世界からの来訪者「降臨者」のうち、旅人（空/蛍）は第四降臨者であるとファデュイやナヒーダによって言及されています。" },
+      { q: "深淵教団の魔物たち（アビスの魔術師など）の正体は？", o: ["ファデュイの離脱者","呪いを受けたカーンルイアの遺民","セレスティアの使者","魔神の眷属"], a: 1, e: "深淵教団の魔物は、500年前に天理の呪いを受け、人間としての姿と理性を失ったカーンルイアの国民の成れの果てです。" },
+      { q: "ファデュイ執行官（ファトゥス）の第1位（最強）は？", o: ["隊長カピターノ","博士ドットーレ","少女コロンビーナ","道化ピエロ"], a: 0, e: "執行官の第1位は「隊長」カピターノです。（道化ピエロは番号を持たない「統括官」であり、別格の存在として組織を立ち上げました）。" },
+      { q: "フォンテーヌの「原罪」の真相とは？", o: ["フォンテーヌ人は元々純水精霊だった","天理に呪われた民族だった","カーンルイアの末裔だった","機械人形だった"], a: 0, e: "フォンテーヌ人の「原罪」とは、先代水神エゲリアが純水精霊を人間の姿に変化させたことでした。原始胎海の水に触れると元の精霊に溶けて戻ってしまいます。" },
+      { q: "天空島（セレスティア）の「第一降臨者」が行ったことは？", o: ["テイワットに七元素を与えた","古龍を退治し天理の秩序を打ち立てた","魔神を創造した","深淵を封印した"], a: 1, e: "第一降臨者（原初のあの方）はテイワットに訪れ、旧主である七龍（ヴィシャップ）を退けて新たな秩序（天理）を打ち立てた創造主とされています。" },
+      { q: "「神の心」（グノーシス）とは何？", o: ["神の目の上位版","七神が天空島と共鳴する第三の魔力器官","聖遺物の一種","天理との通信装置"], a: 1, e: "神の心は七神が持つ力の結晶であり、第三降臨者の遺骨から創られたと言われています。氷の女皇は天理に反逆するため、全ての神の心を集めています。" },
+      { q: "ダインスレイヴの異名は？", o: ["末光の剣（黄昏の剣）","暗夜の英雄","「淵の使徒」","「薪炎の裁判官」"], a: 0, e: "ダインスレイヴは「末光の剣（Twilight Sword）」と呼ばれ、かつてカーンルイアの王室親衛隊長でした。不死の呪いを受けながら、かつての友（旅人の片割れ）を追っています。" },
+      { q: "スメール編で明かされた「世界樹」の能力は？", o: ["テイワットのすべての情報と記憶の改変","元素エネルギーの無限供給","七神の力の源","気候の完全制御"], a: 0, e: "世界樹（イルミンスル）はテイワットの過去を含むすべての記憶や情報を管理しています。情報を書き換えることで、人々の記憶や歴史認識を改変することが可能です。" },
+    ]
+  },
+
+  // ────────────── 地域・探索 ──────────────
+  region: {
+    easy: [
+      { q: "璃月（リーユエ）港のモチーフとなった国は？", o: ["日本","中国","インド","フランス"], a: 1, e: "璃月は中国をモチーフにした地域で、切り立った岩山や美しい仙境、伝統的な中国風の建築・音楽が特徴的です。" },
+      { q: "稲妻（いなずま）のモチーフとなった国は？", o: ["中国","韓国","日本","タイ"], a: 2, e: "稲妻は江戸時代の日本をモチーフにしており、桜、武士、将軍、そして鎖国体制などの和風要素で構成されています。" },
+      { q: "フォンテーヌのモチーフとなった国は？", o: ["イタリア","フランス","イギリス","ドイツ"], a: 1, e: "フォンテーヌは近代フランスやヨーロッパをモチーフにしており、スチームパンク要素やルネサンス期の芸術、裁判文化が取り入れられています。" },
+      { q: "モンドのモチーフとなった地域は？", o: ["北欧","中世ドイツ・ヨーロッパ","古代ギリシャ","現代アメリカ"], a: 1, e: "モンドは中世ドイツを中心にヨーロッパをモチーフにした街並みです。モンド（Mond）はドイツ語で「月」を意味します。" },
+      { q: "「ドラゴンスパイン」はどの国にある山？", o: ["璃月","モンド","稲妻","スメール"], a: 1, e: "ドラゴンスパインはモンド南部にある極寒の雪山で、かつて漆黒の魔龍ドゥリンが墜落した場所です。極寒ゲージの管理が必要です。" },
+      { q: "璃月の特産品で、崖の側面にしか生えない花は？", o: ["風車アスター","琉璃袋","緋櫻毬","カルパラタ蓮"], a: 1, e: "琉璃袋（るりぶくろ）は璃月の特産品で、切り立った崖の表面に咲くため、採取には過酷な壁登りが要求されることで有名です。" },
+      { q: "稲妻の中心となる、稲妻城や鳴神大社がある島は？", o: ["鶴観","海祇島","鳴神島","セイライ島"], a: 2, e: "鳴神島は稲妻の中心地です。大きな神櫻がそびえ立つ鳴神大社や、雷電将軍が住まう天守閣が存在します。" },
+    ],
+    normal: [
+      { q: "スメールの西部に広がる広大な砂漠地帯の名前は？", o: ["ナル・ガヴィハーラ","大赤砂海","スメールシティ","アビディアの森"], a: 1, e: "大赤砂海はスメールの西部に広がる砂漠で、かつて赤王（キングデシェレト）が統治していた古代文明の遺跡が多数眠っています。" },
+      { q: "「淵下宮（えんかぐや）」はどの国に関連する地下遺跡？", o: ["モンド","璃月","稲妻","スメール"], a: 2, e: "淵下宮は稲妻の海祇島（わたつみじま）の海淵の底にある古代遺跡で、白夜国と呼ばれた古代文明の跡地です。オロバシによって人々は地上へ導かれました。" },
+      { q: "フォンテーヌの海底に存在する巨大な水中監獄の名前は？", o: ["オペラ・エピクレーズ","メロピデ要塞","エリナス","ポワソン町"], a: 1, e: "メロピデ要塞はフォンテーヌの水中にある監獄で、公爵リオセスリが管理者です。罪人だけでなく独自のコミュニティや工場を持つ独立した地域です。" },
+      { q: "Ver6.6の魔神任務で物語の主な舞台となったのはどの地域？", o: ["モンド","璃月","スメール","フォンテーヌ"], a: 2, e: "Ver6.6（Luna 7）で追加された魔神任務「空月の歌」第9・10幕では、再び「スメール」を舞台に世界樹を巡る物語が展開されました。" },
+      { q: "ナタのモチーフとなった文化圏は？", o: ["エジプト","中南米・アステカ・アフリカ","アラビア","インド"], a: 1, e: "ナタは中南米の先住民文化やアステカ、マヤ文明などをモチーフにした炎と戦争の国で、部族単位で文化が分かれています。" },
+      { q: "稲妻の「セイライ島」が激しい雷嵐に見舞われている原因は？", o: ["雷神の怒り","封印された浅瀬神社の猫又","解き放たれた雷鳥の怨念と雷音権現","深淵教団の仕業"], a: 2, e: "セイライ島の雷嵐は、かつて浅瀬響が幕府軍の艦隊を沈めるために雷鳥の怨念の封印を解き放ったことが原因であり、雷音権現が生息しています。" },
+      { q: "稲妻の「鶴観（つるみ）」に立ち込める霧の原因は？", o: ["天候異常","雷鳥カパッチルが残した呪い","深淵教団の結界","自然現象"], a: 1, e: "鶴観の濃霧は、かつて島の民が少年ルーを雷鳥の生贄にしたことに激怒した雷鳥カパッチルが、島を永遠の幻影に閉じ込める呪いをかけたためです。" },
+    ],
+    hard: [
+      { q: "旧貴族（ローレンス家など）が圧政を敷いていたのは現在のモンドのどこ？", o: ["モンド城","ドラゴンスパイン周辺","旧モンド（風龍廃墟）","誓いの岬"], a: 0, e: "旧貴族が支配していたのは、デカラビアン陥落後に築かれた現在のモンド城（新モンド）です。奴隷剣闘士ヴェネッサの反乱と風神バルバトスの力によって追放されました。風龍廃墟はそれより昔の「旧モンド」（デカラビアンの都）です。" },
+      { q: "フォンテーヌのベリル地域にある「エリナス」とは何だった？", o: ["古代の建築物","深淵から来た巨大な生物の遺骸","フォンテーヌの初代水神","巨大な機械兵器"], a: 1, e: "エリナスはかつてレインドットによって創られ、フォンテーヌに現れた巨大な生命体です。その遺骸が地形となっており、体内で生まれたのがメリュジーヌ族です。" },
+      { q: "「帰終（きしゅう）」とは璃月の歴史において何者だった？", o: ["岩神の敵の魔神","鍾離と共に帰離原を作った塵の魔神","草神の前任者","カーンルイアの女王"], a: 1, e: "帰終は「塵の魔神」と呼ばれ、知恵に優れていました。鍾離と共に人々を導き帰離原（きりがはら）を築きましたが、魔神戦争で命を落としました。帰終機の開発者です。" },
+      { q: "モンドの「風龍廃墟」はかつて何と呼ばれていた？", o: ["風神の神殿","デカラビアンが支配する旧モンド","ドラゴンの巣","冒険者ギルド本部"], a: 1, e: "風龍廃墟はかつて竜巻の魔神デカラビアンが風雪から民を守るために作った都市（旧モンド）でしたが、強すぎる風の壁は檻のようであり、反乱が起きました。" },
+      { q: "稲妻の「影向山」の地下空間に封じられていたものは？", o: ["御影炉心","雷桜の根を蝕む瘴気と過去の記憶","オロバシの残骸","雷鳥の化石"], a: 1, e: "神櫻大祓の儀式で訪れる地下には、稲妻の大地を浄化する過程で溜まった巨大な「瘴気（穢れ）」と、かつての狐斎宮の記憶などが渦巻いていました。" },
+      { q: "「帰離原（きりがはら）」の名前の由来は？", o: ["霧が多いため","帰終とモラクス（鍾離）の二人の名から","昔の国の名前","仙人の名前"], a: 1, e: "帰離原は、塵の魔神「帰終」の『帰』と、岩神モラクスの別名「鍾離」の『離』を取って名付けられた豊かな平原でした。" },
+    ]
+  },
+
+  // ────────────── 武器・聖遺物 ──────────────
+  weapon: {
+    easy: [
+      { q: "原神に登場する武器種は全部でいくつ？", o: ["3種","4種","5種","6種"], a: 2, e: "片手剣・両手剣・長柄武器（槍）・弓・法器の5種類です。" },
+      { q: "武器のレアリティで最も高いのは星いくつ？", o: ["星3","星4","星5","星6"], a: 2, e: "武器の最高レアリティは星5で、主に期間限定の武器祈願（ガチャ）で入手できます。" },
+      { q: "聖遺物は全部でいくつの部位がある？", o: ["3つ","4つ","5つ","6つ"], a: 2, e: "生の花・死の羽・時の砂（時計）・空の杯・理の冠の5部位です。同セットを2つ、または4つ装備することでセット効果が発動します。" },
+      { q: "聖遺物の「花」のメインステータスは必ず何になる？", o: ["攻撃力固定値","HP固定値","防御力固定値","元素熟知"], a: 1, e: "「生の花」のメインステータスは必ずHPの固定値（実数）になります。" },
+      { q: "聖遺物の「羽」のメインステータスは必ず何になる？", o: ["攻撃力固定値","HP固定値","防御力固定値","会心率"], a: 0, e: "「死の羽」のメインステータスは必ず攻撃力の固定値（実数）になります。" },
+      { q: "鍛冶屋の「鍛造」で作れる武器の最高レアリティは？", o: ["星3","星4","星5","星2"], a: 1, e: "鍛造で作れる武器は最高で星4です。無課金でも原型を集めることで完凸（精錬ランク5）を目指せます。" },
+    ],
+    normal: [
+      { q: "星5両手剣「狼の末路」のサブステータスは？", o: ["会心率","会心ダメージ","攻撃力%","物理ダメージバフ"], a: 2, e: "狼の末路のサブステータスは攻撃力%です。さらに武器効果でも攻撃力が大きく上がり、味方全体の攻撃力バフも可能な強力な大剣です。" },
+      { q: "聖遺物セット「絶縁の旗印」4セットの強力な効果は？", o: ["元素爆発ダメージがチャージ効率の25%分アップ","元素スキルダメージ+20%","攻撃力+18%","元素熟知+80"], a: 0, e: "絶縁の旗印4セットは、元素チャージ効率を盛るほど元素爆発ダメージが上がる（最大75%）ため、雷電将軍や行秋、香菱などに最適です。" },
+      { q: "「天空」シリーズの武器の背景ストーリーの共通点は？", o: ["全て岩神モラクスの武器","会心率がサブステ","全てトワリンと風神バルバトスに関するモンドの伝説","全て物理ダメージバフ"], a: 2, e: "天空シリーズ（天空の刃、天空の翼、天空の巻など）は全てモンドの風龍トワリンや風神バルバトスの歴史に関するテキストが書かれています。" },
+      { q: "聖遺物の「杯」でメインステータスに付く「ダメージバフ」は何種類ある？", o: ["5種類","7種類","8種類","9種類"], a: 2, e: "炎・水・風・雷・草・氷・岩の7元素 ＋ 物理ダメージの計8種類のバフが杯のメインステータスに付きます。狙ったバフを出すのは至難の業です。" },
+      { q: "「旧貴族のしつけ」4セットの効果は？", o: ["元素爆発後パーティ全員の攻撃力+20%","元素爆発ダメージ+20%","会心率+12%","元素スキルダメージ+20%"], a: 0, e: "旧貴族4セットは、装備者が元素爆発を使うとパーティ全員の攻撃力が12秒間20%アップする、サポーター向けの定番聖遺物です。" },
+      { q: "「護摩の杖」はどのキャラクターのモチーフ（専用）武器として有名？", o: ["鍾離","胡桃","魈","香菱"], a: 1, e: "護摩の杖は胡桃（フータオ）のモチーフ武器で、HP上限を基に攻撃力がアップし、HPが50%未満の時にさらに攻撃力が上がる、彼女の性能に完璧に噛み合った武器です。" },
+      { q: "Ver6.6で実装された新たな聖遺物セットの名前は？", o: ["天界の贈り物","夜魂の残骸","氷結の勇士","星海の巡礼"], a: 0, e: "Ver6.6のアップデートで新聖遺物セット「天界の贈り物」が実装されました。同バージョンで実装されたニコと相性の良いサポート向けセットです。" },
+    ],
+    hard: [
+      { q: "入手した直後の星5聖遺物の初期サブステータスの数は？", o: ["必ず3つ","必ず4つ","3つまたは4つ","2つまたは3つ"], a: 2, e: "星5聖遺物は初期サブステータスが3つ（3オプ）または4つ（4オプ）です。初期から4つある方が最大強化回数が1回多くなるため、厳選では重要視されます。" },
+      { q: "聖遺物のサブステータスで「会心率」の1回の最大上昇値は？", o: ["2.7%","3.5%","3.9%","4.7%"], a: 2, e: "会心率のサブステは1回あたり 2.7%, 3.1%, 3.5%, 3.9% の4段階の数値からランダムで選ばれます。最大値の3.9%を引き続けるのが神聖遺物の条件です。" },
+      { q: "神里綾華のモチーフ武器「霧切の廻光」の元素ダメージバフの最大スタック数は？", o: ["2スタック","3スタック","4スタック","5スタック"], a: 1, e: "霧切の廻光の「霧切の巴紋」は最大3スタックです。通常攻撃での元素ダメージ、元素爆発発動、エネルギー100%未満の3つの条件を満たす必要があります。" },
+      { q: "ユーザー間で使われる「聖遺物スコア」の一般的な計算式は？", o: ["会心率×2 + 会心ダメージ","攻撃力 + 会心率","会心率 + 会心ダメージ","HP + 防御力"], a: 0, e: "一般的な聖遺物スコア（会心スコア）は「会心率 × 2 + 会心ダメージ」で計算されます。会心率の価値は会心ダメージの2倍に設定されているためです。" },
+      { q: "「金メッキの夢」4セットが最も効果（元素熟知バフ）を発揮する条件は？", o: ["同元素パーティで組む","装備者と異なる元素のキャラを多く編成する","物理パーティで組む","回復キャラを編成する"], a: 1, e: "金メッキの夢4セットは、パーティ内に装備者と「異なる元素」のキャラがいる数に応じて元素熟知が50ずつ（最大150）上がるため、多色パーティ向けです。" },
+      { q: "神里綾人のモチーフ武器「波乱月白経津（はらんげっぱくふつ）」のパッシブ効果の名前は？", o: ["白刃流転","月白の波","波穂の薙ぎ","白波の渡り"], a: 0, e: "波乱月白経津のパッシブ「白刃流転（はくじんるてん）」は、他のキャラがスキルを使うと「波穂」を獲得し、自身の通常攻撃ダメージを大幅に引き上げる効果です。" },
+    ]
+  },
+
+  // ────────────── システム ──────────────
+  system: {
+    easy: [
+      { q: "キャラクターや武器を入手するためのガチャシステムの名称は？", o: ["召喚","祈願","ガチャ","抽選"], a: 1, e: "原神のガチャシステムは「祈願（きがん）」と呼ばれています。出会いの縁や紡がれた運命を使用します。" },
+      { q: "冒険者ランクが上がると主にどうなる？", o: ["魔神任務の解放や世界ランクの上昇","キャラクターの星座が解放される","武器が勝手に精錬される","聖遺物のサブステが変更できる"], a: 0, e: "冒険者ランクが上がると、新しい任務（ストーリー）が解放され、世界ランクが上がって敵が強くなる代わりに報酬も豪華になります。" },
+      { q: "冒険者協会のデイリー任務（依頼）は1日何回まで？", o: ["2回","4回","6回","8回"], a: 1, e: "デイリー任務は1日4回です。すべてクリアしてキャサリンに報告すると、追加で原石などの報酬を受け取れます。" },
+      { q: "天然樹脂の所持上限はいくつ？（※Ver4.7以降）", o: ["120","160","180","200"], a: 3, e: "Ver4.7のアップデートで天然樹脂の上限が160から「200」に引き上げられ、あふれにくくなりました。8分に1つ回復します。" },
+      { q: "エンドコンテンツ「深境螺旋」は何層まである？", o: ["8層","10層","12層","15層"], a: 2, e: "深境螺旋は12層まであり、9層から12層（淵月螺旋）は定期的に敵の編成が入れ替わり、クリア状況がリセットされます。" },
+      { q: "キャラクターのレベルの最大上限は？（Ver6.0以降）", o: ["80","90","100","120"], a: 2, e: "リリース以来長らく90でしたが、5周年のVer6.0（Luna I）で新アイテム「無主の星屑」が実装され、上限を最大「100」まで解放できるようになりました。" },
+    ],
+    normal: [
+      { q: "キャラクターの「天賦（スキル）」レベルを上げるために必要ないアイテムは？", o: ["天賦育成素材（本）","週ボス素材","モラ","鍛造用魔鉱"], a: 3, e: "天賦レベル上げには天賦本、モラ、キャラの突破素材（スライムの液体など）、高レベルでは週ボスのドロップ素材と知恵の冠が必要ですが、魔鉱は武器の強化用です。" },
+      { q: "キャラクターの「命ノ星座」を最大（完凸）にするには、同じキャラを合計何回入手する必要がある？", o: ["5回","6回","7回","10回"], a: 2, e: "最初のキャラ獲得（無凸）で1回、星座の解放に6回（1凸〜6凸）の星屑が必要なため、合計7回引き当てる必要があります。" },
+      { q: "天然樹脂1つが回復するのにかかる時間は？", o: ["6分","8分","10分","12分"], a: 1, e: "天然樹脂は現実時間の8分につき1つ回復します。0から200まで全回復するには約26時間40分かかります。" },
+      { q: "キャラクター祈願の「天井」（星5が必ず出る回数）は最大何回？", o: ["50回","70回","80回","90回"], a: 3, e: "キャラ祈願の天井は最大90回です。ただし、74回目以降から星5の排出確率が大幅に上昇する仕様（ソフト天井）があります。" },
+      { q: "「濃縮樹脂」を合成するのに必要な天然樹脂の数は？", o: ["20","30","40","60"], a: 2, e: "晶核1つと天然樹脂40を消費して「濃縮樹脂」を作成できます。秘境のクリア報酬を一度に2回分受け取れる時短アイテムです。" },
+      { q: "紀行（バトルパス）の1シーズンの期間はおよそどれくらい？", o: ["約4週間","約6週間","約8週間","約10週間"], a: 1, e: "原神の1回のバージョンアップデート周期と同じく、紀行の期間は約6週間（42日）に設定されています。" },
+      { q: "ショップの「スターダスト交換」で、毎月交換できる「紡がれた運命」と「出会いの縁」の最大数はそれぞれいくつ？", o: ["3個ずつ","5個ずつ","10個ずつ","無制限"], a: 1, e: "毎月スターダスト75個を使って、限定ガチャ用の紡がれた運命を5個、恒常ガチャ用の出会いの縁を5個、計10回分のガチャ石を交換できます。" },
+    ],
+    hard: [
+      { q: "深境螺旋の9層〜12層ですべての星（計36星）を取ると、合計で何個の原石が得られる？", o: ["400","600","800","1200"], a: 2, e: "以前は各層150原石の計600でしたが、報酬が増額され、9〜12層の星36をすべて集めると合計「800」原石を獲得できるようになりました。" },
+      { q: "武器祈願（神鋳賦形）で、目当てのピックアップ武器を「運命の軌跡」で確定入手するまでに必要な最大ガチャ回数は？", o: ["80回","160回","240回","270回"], a: 1, e: "Ver5.0の神アップデートにより、命定値の上限が2から1に減少しました。そのためすり抜けは最大1回となり、80回(天井)×2＝最大160回で確定入手できるようになりました。" },
+      { q: "「幻想シアター」のマスターモードに挑戦するために必要な、条件を満たすキャラクターの最小数は？", o: ["12人","16人","18人","22人"], a: 3, e: "マスターモードは条件を満たすレベル70以上のキャラクターを「22人」用意しなければ挑戦できません。現在はさらに上位の「月諭モード」（28人必要）も追加されています。" },
+      { q: "元素スキルのクールタイム（CT）中にそのキャラクターを控え（裏）に下げると、クールタイムはどうなる？", o: ["CTのカウントが止まる","CTのカウントは継続する","CTがリセットされる","CTの進みが半分になる"], a: 1, e: "裏に引っ込めてもクールタイムのカウントは正常に継続します。この仕様を利用して、複数のキャラのスキルを順番に回す「ローテーション」がバトルの基本となります。" },
+      { q: "ダメージ計算上、会心率と会心ダメージの理想的なバランス（比率）は一般的にどれくらいと言われている？", o: ["1:1","1:2","1:3","2:1"], a: 1, e: "聖遺物のステータスの伸び幅が「会心率1 : 会心ダメージ2」に設定されているため、実際のステータスも 1:2 （例：率70%、ダメ140%）に近づけるのが最も期待値が高くなります。" },
+      { q: "祈願で「星4アイテム」が確定で排出される（星4天井）のは最大何回ごと？", o: ["5回","8回","10回","15回"], a: 2, e: "星4以上のアイテムは10連（または単発10回）で必ず1つ排出されます。ただし、ピックアップキャラが確定するわけではなく、武器や別の星4キャラが出ることもあります。" },
+    ]
+  }
+};
+
+// =======================================================================
+//  GAME ENGINE
+// =======================================================================
+let selectedDifficulty = 'easy';
+let selectedGenres = new Set(Object.keys(GENRES));
+let questionCount = 10;
+let questions = [];
+let currentQuestion = 0;
+let score = 0;
+let wrongCount = 0;
+let answered = false;
+let timerInterval = null;
+
+
+const TIMER_MAP = { easy: 20, normal: 15, hard: 12, all: 15 };
+
+// DOM
+const $start   = document.getElementById('start-screen');
+const $quiz    = document.getElementById('quiz-screen');
+const $result  = document.getElementById('result-screen');
+const $startBtn = document.getElementById('start-btn');
+const $nextBtn  = document.getElementById('next-btn');
+const $retryBtn = document.getElementById('retry-btn');
+const $backBtn  = document.getElementById('back-btn');
+const $quitBtn  = document.getElementById('quit-btn');
+
+// ── Particles ──
+(function initParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (6 + Math.random() * 10) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    const s = (2 + Math.random() * 3) + 'px';
+    p.style.width = s; p.style.height = s;
+    c.appendChild(p);
+  }
+})();
+
+// ── Build Genre Chips ──
+(function buildGenreUI() {
+  const grid = document.getElementById('genre-grid');
+  // "All" chip first
+  const allChip = makeChip('all', 'すべて', '');
+  allChip.classList.add('active');
+  grid.appendChild(allChip);
+
+  for (const [key, { label }] of Object.entries(GENRES)) {
+    const cnt = countQuestions(key, 'all');
+    const chip = makeChip(key, label, cnt);
+    chip.classList.add('active');
+    grid.appendChild(chip);
+  }
+
+  function makeChip(key, label, count) {
+    const chip = document.createElement('button');
+    chip.className = 'genre-chip';
+    chip.dataset.genre = key;
+    chip.innerHTML = label +
+      (count !== '' ? `<span class="chip-count">${count}</span>` : '');
+    chip.addEventListener('click', () => toggleGenre(key));
+    return chip;
+  }
+})();
+
+function countQuestions(genre, diff) {
+  if (genre === 'all') {
+    let t = 0;
+    for (const g of Object.keys(GENRES)) t += countQuestions(g, diff);
+    return t;
+  }
+  const data = quizData[genre];
+  if (!data) return 0;
+  if (diff === 'all') return (data.easy?.length || 0) + (data.normal?.length || 0) + (data.hard?.length || 0);
+  return data[diff]?.length || 0;
+}
+
+function toggleGenre(key) {
+  const chips = document.querySelectorAll('.genre-chip');
+  const allChip = document.querySelector('.genre-chip[data-genre="all"]');
+
+  if (key === 'all') {
+    const allActive = allChip.classList.contains('active');
+    if (allActive) {
+      // Deselect all
+      chips.forEach(c => c.classList.remove('active'));
+      selectedGenres.clear();
+    } else {
+      // Select all
+      chips.forEach(c => c.classList.add('active'));
+      selectedGenres = new Set(Object.keys(GENRES));
+    }
+  } else {
+    const chip = document.querySelector(`.genre-chip[data-genre="${key}"]`);
+    if (selectedGenres.has(key)) {
+      selectedGenres.delete(key);
+      chip.classList.remove('active');
+      allChip.classList.remove('active');
+    } else {
+      selectedGenres.add(key);
+      chip.classList.add('active');
+      if (selectedGenres.size === Object.keys(GENRES).length) allChip.classList.add('active');
+    }
+  }
+  updatePoolCount();
+}
+
+// ── Difficulty buttons ──
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedDifficulty = btn.dataset.diff;
+    updatePoolCount();
+  });
+});
+
+// ── Question count buttons ──
+(function buildCountUI() {
+  const container = document.getElementById('count-options');
+  const countChoices = [
+    { label: '10', value: 10 },
+    { label: '20', value: 20 },
+    { label: '全問', value: 9999 }
+  ];
+  countChoices.forEach(({ label, value }) => {
+    const btn = document.createElement('button');
+    btn.className = 'count-btn' + (value === 10 ? ' active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      questionCount = value;
+      updateStartBtn();
+    });
+    container.appendChild(btn);
+  });
+})();
+
+function getPool() {
+  let pool = [];
+  for (const genre of selectedGenres) {
+    const data = quizData[genre];
+    if (!data) continue;
+    const diffs = selectedDifficulty === 'all' ? ['easy','normal','hard'] : [selectedDifficulty];
+    for (const d of diffs) {
+      if (data[d]) {
+        pool.push(...data[d].map(q => ({
+          ...q,
+          category: GENRES[genre].label,
+          difficulty: d
+        })));
+      }
+    }
+  }
+  return pool;
+}
+
+function updatePoolCount() {
+  const pool = getPool();
+  document.getElementById('pool-count').textContent = pool.length;
+  updateStartBtn();
+  // Update chip counts
+  document.querySelectorAll('.genre-chip[data-genre]').forEach(chip => {
+    const g = chip.dataset.genre;
+    if (g === 'all') return;
+    const countSpan = chip.querySelector('.chip-count');
+    if (countSpan) countSpan.textContent = countQuestions(g, selectedDifficulty);
+  });
+}
+
+function updateStartBtn() {
+  const pool = getPool();
+  $startBtn.disabled = pool.length === 0 || selectedGenres.size === 0;
+}
+
+updatePoolCount();
+
+// ── Shuffle ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── START ──
+$startBtn.addEventListener('click', () => { playClickSound(); startGame(); });
+$retryBtn.addEventListener('click', () => {
+  playClickSound();
+  startGame();
+});
+$backBtn.addEventListener('click', () => {
+  playClickSound();
+  $result.style.display = 'none';
+  $start.style.display = 'block';
+  $start.style.animation = 'fadeInUp 0.5s ease-out';
+});
+$quitBtn.addEventListener('click', () => {
+  playClickSound();
+  clearInterval(timerInterval);
+  $quiz.style.display = 'none';
+  $start.style.display = 'block';
+  $start.style.animation = 'fadeInUp 0.5s ease-out';
+});
+
+function startGame() {
+  const pool = getPool();
+  const count = Math.min(questionCount, pool.length);
+  if (count === 0) return;
+
+  // 正解の位置が偏らないよう、出題ごとに選択肢の並びもシャッフルする
+  questions = shuffle(pool).slice(0, count).map(q => {
+    const order = shuffle([0, 1, 2, 3]);
+    return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
+  });
+  currentQuestion = 0;
+  score = 0;
+  wrongCount = 0;
+  document.getElementById('q-total').textContent = questions.length;
+  document.getElementById('tally-correct').textContent = '0';
+  document.getElementById('tally-wrong').textContent = '0';
+
+  $start.style.display = 'none';
+  $quiz.style.display = 'block';
+  $result.style.display = 'none';
+
+  showQuestion();
+}
+
+// ── SHOW QUESTION ──
+function showQuestion() {
+  answered = false;
+  const q = questions[currentQuestion];
+
+  document.getElementById('q-current').textContent = currentQuestion + 1;
+  document.getElementById('q-category').textContent = q.category;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('progress-fill').style.width = ((currentQuestion) / questions.length * 100) + '%';
+  document.getElementById('tally-correct').textContent = score;
+  document.getElementById('tally-wrong').textContent = wrongCount;
+
+  // Difficulty badge
+  const badge = document.getElementById('q-diff-badge');
+  const diffLabels = { easy: '初級', normal: '中級', hard: '上級' };
+  badge.textContent = diffLabels[q.difficulty] || '';
+  badge.className = 'question-difficulty-badge badge-' + q.difficulty;
+
+  document.getElementById('explanation').style.display = 'none';
+  $nextBtn.style.display = 'none';
+
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'fadeInUp 0.5s ease-out';
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  const labels = ['A', 'B', 'C', 'D'];
+
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-label">${labels[i]}</span><span class="option-text">${opt}</span>`;
+    btn.style.animation = `fadeInUp ${0.3 + i * 0.08}s ease-out`;
+    btn.addEventListener('click', () => selectAnswer(i, btn));
+    container.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+// ── TIMER ──
+function startTimer() {
+  clearInterval(timerInterval);
+  const duration = TIMER_MAP[selectedDifficulty] || 15;
+  let timeLeft = duration;
+  const timerFill = document.getElementById('timer-fill');
+  timerFill.style.width = '100%';
+  timerFill.classList.remove('warning');
+
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.05;
+    timerFill.style.width = Math.max(0, (timeLeft / duration) * 100) + '%';
+    if (timeLeft <= duration * 0.3) timerFill.classList.add('warning');
+    if (timeLeft <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
+  }, 50);
+}
+
+function timeUp() {
+  revealAnswer(null);
+}
+
+// 回答確定の共通処理（selectedIndex: 選択した選択肢の番号 / null = 時間切れ）
+function revealAnswer(selectedIndex) {
+  answered = true;
+  clearInterval(timerInterval);
+  const q = questions[currentQuestion];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.classList.add('disabled');
+    if (i === q.a) b.classList.add('correct');
+  });
+
+  if (selectedIndex === q.a) {
+    score++;
+    document.getElementById('tally-correct').textContent = score;
+    playCorrectSound();
+    flashScreen('correct-flash');
+  } else {
+    wrongCount++;
+    document.getElementById('tally-wrong').textContent = wrongCount;
+    playWrongSound();
+    flashScreen('wrong-flash');
+    const card = document.getElementById('question-card');
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 500);
+  }
+
+  showExplanation(q.e);
+  $nextBtn.style.display = 'block';
+  $nextBtn.textContent = currentQuestion < questions.length - 1 ? '次の問題 →' : '結果を見る →';
+  $nextBtn.style.animation = 'fadeInUp 0.4s ease-out';
+}
+
+// ── SOUND SYSTEM (Web Audio API) ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playCorrectSound() {
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+  [523.25, 659.25, 783.99].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.18, now + i * 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now + i * 0.1);
+    osc.stop(now + i * 0.1 + 0.4);
+  });
+}
+
+function playWrongSound() {
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(200, now);
+  osc.frequency.linearRampToValueAtTime(120, now + 0.35);
+  gain.gain.setValueAtTime(0.15, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.4);
+}
+
+function playClickSound() {
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 880;
+  gain.gain.setValueAtTime(0.08, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.08);
+}
+
+function playFanfare() {
+  const ctx = getAudioCtx();
+  const now = ctx.currentTime;
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.15, now + i * 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.6);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now + i * 0.15);
+    osc.stop(now + i * 0.15 + 0.6);
+  });
+}
+
+// ── SCREEN FLASH ──
+function flashScreen(type) {
+  const el = document.getElementById('screen-flash');
+  el.className = 'screen-flash ' + type;
+  setTimeout(() => { el.className = 'screen-flash'; }, 350);
+}
+
+// ── SELECT ANSWER ──
+function selectAnswer(index, btn) {
+  if (answered) return;
+  if (index === questions[currentQuestion].a) spawnMiniConfetti(btn);
+  else btn.classList.add('wrong');
+  revealAnswer(index);
+}
+
+function showExplanation(text) {
+  const exp = document.getElementById('explanation');
+  document.getElementById('exp-text').textContent = text;
+  exp.style.display = 'block';
+}
+
+// ── NEXT ──
+$nextBtn.addEventListener('click', () => {
+  playClickSound();
+  currentQuestion++;
+  if (currentQuestion < questions.length) showQuestion();
+  else showResult();
+});
+
+// ── RESULT ──
+function showResult() {
+  clearInterval(timerInterval);
+  $quiz.style.display = 'none';
+  $result.style.display = 'block';
+  $result.style.animation = 'fadeInUp 0.8s ease-out';
+
+  const total = questions.length;
+  const pct = score / total;
+
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-total').textContent = total;
+  document.getElementById('stat-correct').textContent = score;
+  document.getElementById('stat-wrong').textContent = wrongCount;
+
+  // Reset circle then animate
+  const circle = document.getElementById('circle-fill');
+  const circumference = 2 * Math.PI * 70;
+  circle.style.transition = 'none';
+  circle.style.strokeDashoffset = circumference;
+  circle.offsetHeight;
+  circle.style.transition = 'stroke-dashoffset 1.5s ease-out';
+  setTimeout(() => { circle.style.strokeDashoffset = circumference - (pct * circumference); }, 100);
+
+  let rank, title, message;
+  if (pct === 1) {
+    rank = 'SSS'; title = '全知全能の旅人';
+    message = '完璧！テイワットのすべてを知り尽くしています。あなたは真の冒険者です！';
+    spawnConfetti(); playFanfare();
+  } else if (pct >= 0.8) {
+    rank = 'S'; title = '博識な冒険者';
+    message = '素晴らしい知識量です！もう少しで完璧ですね。';
+    spawnConfetti(); playFanfare();
+  } else if (pct >= 0.6) {
+    rank = 'A'; title = '熟練の旅人';
+    message = '良い結果です！まだまだテイワットには発見が待っています。';
+  } else if (pct >= 0.4) {
+    rank = 'B'; title = '成長中の冒険者';
+    message = 'もう少し冒険を続ければ、もっと多くのことを知れるでしょう。';
+  } else {
+    rank = 'C'; title = '駆け出しの旅人';
+    message = 'まだ旅は始まったばかり。テイワットを探索してもう一度挑戦しましょう！';
+  }
+
+  document.getElementById('result-rank').textContent = rank;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-message').textContent = message;
+}
+
+// ── CONFETTI ──
+function spawnConfetti() {
+  const c = document.createElement('div');
+  c.className = 'confetti-container';
+  document.body.appendChild(c);
+  const colors = ['#e2b44d','#f5d88e','#74c2a8','#b08fc2','#ef7938','#4cc2f1','#f87171','#4ade80'];
+  for (let i = 0; i < 100; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (2+Math.random()*3)+'s';
+    p.style.animationDelay = Math.random()*1.5+'s';
+    const s = (4+Math.random()*8)+'px'; p.style.width = s; p.style.height = s;
+    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.remove(), 5000);
+}
+
+function spawnMiniConfetti(btn) {
+  const rect = btn.getBoundingClientRect();
+  const c = document.createElement('div');
+  c.className = 'confetti-container';
+  document.body.appendChild(c);
+  const colors = ['#4ade80','#e2b44d','#f5d88e'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti';
+    p.style.left = (rect.left+rect.width/2+(Math.random()-0.5)*100)+'px';
+    p.style.top = rect.top+'px';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (1+Math.random()*1.5)+'s';
+    const s = (3+Math.random()*5)+'px'; p.style.width = s; p.style.height = s;
+    p.style.borderRadius = '50%';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.remove(), 3000);
+}
+</script>
+</body>
+</html>
