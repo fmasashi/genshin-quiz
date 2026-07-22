@@ -899,7 +899,6 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
       document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       questionCount = value;
-      updateStartBtn();
     });
     container.appendChild(btn);
   });
@@ -939,8 +938,7 @@ function updatePoolCount() {
 }
 
 function updateStartBtn() {
-  const pool = getPool();
-  $startBtn.disabled = pool.length === 0 || selectedGenres.size === 0;
+  $startBtn.disabled = getPool().length === 0;
 }
 
 updatePoolCount();
@@ -955,27 +953,24 @@ function shuffle(arr) {
   return a;
 }
 
-// ── START ──
-$startBtn.addEventListener('click', () => { playClickSound(); startGame(); });
-$retryBtn.addEventListener('click', () => {
-  playClickSound();
-  startGame();
-});
-$backBtn.addEventListener('click', () => {
-  playClickSound();
-  $result.style.display = 'none';
-  $start.style.display = 'block';
-  $start.style.animation = 'fadeInUp 0.5s ease-out';
-  bgmEngine.setScene('title');
-});
-$quitBtn.addEventListener('click', () => {
+// ── START / タイトルへ戻る ──
+[$startBtn, $retryBtn].forEach(btn =>
+  btn.addEventListener('click', () => { playClickSound(); startGame(); })
+);
+
+function returnToTitle() {
   playClickSound();
   clearInterval(timerInterval);
   $quiz.style.display = 'none';
+  $result.style.display = 'none';
   $start.style.display = 'block';
+  $start.style.animation = 'none';
+  $start.offsetHeight;
   $start.style.animation = 'fadeInUp 0.5s ease-out';
   bgmEngine.setScene('title');
-});
+}
+$backBtn.addEventListener('click', returnToTitle);
+$quitBtn.addEventListener('click', returnToTitle);
 
 function startGame() {
   const pool = getPool();
@@ -1001,8 +996,6 @@ function startGame() {
   wrongAnswers = [];
   document.getElementById('combo-badge').className = 'combo-badge';
   document.getElementById('q-total').textContent = questions.length;
-  document.getElementById('tally-correct').textContent = '0';
-  document.getElementById('tally-wrong').textContent = '0';
 
   $start.style.display = 'none';
   $quiz.style.display = 'block';
@@ -1239,6 +1232,8 @@ const bgmEngine = {
     const ctx = getAudioCtx();
     const cfg = this.CFG[this.scene] || this.CFG.title;
     const beat = 60 / cfg.bpm / 2; // 8分音符
+    // バックグラウンドでタイマーが間引かれた後は、過去分を演奏せず現在時刻まで進める
+    if (this.nextNoteTime < ctx.currentTime - 0.05) this.nextNoteTime = ctx.currentTime + 0.05;
     while (this.nextNoteTime < ctx.currentTime + 0.35) {
       const bar = Math.floor(this.step / 8) % this.CHORDS.length;
       if (this.step % 8 === 0) this.pad(this.CHORDS[bar], this.nextNoteTime, beat * 8);
@@ -1470,23 +1465,27 @@ document.getElementById('settings-overlay').addEventListener('click', (e) => {
 });
 $bgmVol.addEventListener('input', () => {
   volumes.bgm = $bgmVol.value / 100;
-  document.getElementById('bgm-vol-label').textContent = $bgmVol.value + '%';
+  renderVolumeUI();
   bgmEngine.setVolume();
   persistSave();
 });
 $seVol.addEventListener('input', () => {
   volumes.se = $seVol.value / 100;
-  document.getElementById('se-vol-label').textContent = $seVol.value + '%';
+  renderVolumeUI();
   persistSave();
 });
 $seVol.addEventListener('change', () => playClickSound());
 
-// ── 初回のユーザー操作でオーディオ開始（ブラウザの自動再生制限対策） ──
-document.addEventListener('pointerdown', () => {
+// ── 初回のユーザー操作（クリックまたはキー入力）でオーディオ開始（ブラウザの自動再生制限対策） ──
+function initAudioOnce() {
+  document.removeEventListener('pointerdown', initAudioOnce);
+  document.removeEventListener('keydown', initAudioOnce);
   const ctx = getAudioCtx();
   if (ctx.state === 'suspended') ctx.resume();
   bgmEngine.ensure();
-}, { once: true });
+}
+document.addEventListener('pointerdown', initAudioOnce);
+document.addEventListener('keydown', initAudioOnce);
 </script>
 </body>
 </html>
