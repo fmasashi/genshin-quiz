@@ -348,6 +348,10 @@
       border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
     }
     .review-item .rv-q { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; line-height: 1.5; }
+    .review-item .rv-num {
+      display: inline-block; color: var(--gold); font-size: 11px; font-weight: 700;
+      background: rgba(226, 180, 77, 0.12); padding: 1px 8px; border-radius: 8px; margin-right: 7px;
+    }
     .review-item .rv-a { font-size: 12px; margin-bottom: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
     .review-item .rv-correct { color: var(--correct); font-weight: 600; }
     .review-item .rv-chosen { color: var(--wrong); }
@@ -390,6 +394,15 @@
       transition: all 0.2s ease; letter-spacing: 2px;
     }
     .settings-close-btn:hover { background: rgba(226, 180, 77, 0.08); }
+
+    /* ===== EXTREME WARNING ===== */
+    .extreme-warning-box {
+      max-width: 460px; margin: 0 auto; padding: 12px 18px;
+      border: 1px solid rgba(239, 121, 56, 0.45); background: rgba(239, 121, 56, 0.08);
+      border-radius: 12px; font-size: 12.5px; line-height: 1.8; color: var(--text-primary);
+      animation: fadeInUp 0.3s ease-out;
+    }
+    .extreme-warning-box strong { color: var(--accent-pyro); }
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -452,9 +465,17 @@
         </div>
       </div>
 
-      <div class="settings-section">
+      <div class="settings-section" id="genre-section">
         <p class="section-label">ジャンル（複数選択可）</p>
         <div class="genre-grid" id="genre-grid"></div>
+      </div>
+
+      <div class="settings-section" id="extreme-warning" style="display: none;">
+        <div class="extreme-warning-box">
+          ⚠️ <strong>超上級はめっちゃ難しいから！</strong><br>
+          最新ストーリーの<strong>ネタバレ</strong>を含む問題もあるかもだから！<br>
+          覚悟ができた旅人だけ挑戦してね（全ジャンルから10問出題）
+        </div>
       </div>
 
       <div class="settings-section">
@@ -882,9 +903,23 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedDifficulty = btn.dataset.diff;
+    updateExtremeUI();
     updatePoolCount();
   });
 });
+
+// 超上級選択時はジャンル選択を注意書きに差し替え、出題数を10問に固定する
+function updateExtremeUI() {
+  const isExtreme = selectedDifficulty === 'extreme';
+  document.getElementById('genre-section').style.display = isExtreme ? 'none' : '';
+  document.getElementById('extreme-warning').style.display = isExtreme ? 'block' : 'none';
+  document.querySelectorAll('.count-btn').forEach(b => {
+    const is10 = b.dataset.value === '10';
+    b.style.display = (isExtreme && !is10) ? 'none' : '';
+    if (isExtreme) b.classList.toggle('active', is10);
+  });
+  if (isExtreme) questionCount = 10;
+}
 
 // ── Question count buttons ──
 (function buildCountUI() {
@@ -897,6 +932,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
   countChoices.forEach(({ label, value }) => {
     const btn = document.createElement('button');
     btn.className = 'count-btn' + (value === 10 ? ' active' : '');
+    btn.dataset.value = value;
     btn.textContent = label;
     btn.addEventListener('click', () => {
       document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
@@ -909,7 +945,9 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 
 function getPool() {
   let pool = [];
-  for (const genre of selectedGenres) {
+  // 超上級はジャンル選択を無視して全ジャンルから出題する
+  const genres = selectedDifficulty === 'extreme' ? Object.keys(GENRES) : selectedGenres;
+  for (const genre of genres) {
     const data = quizData[genre];
     if (!data) continue;
     const diffs = selectedDifficulty === 'all' ? DIFF_KEYS : [selectedDifficulty];
@@ -1091,6 +1129,7 @@ function revealAnswer(selectedIndex) {
     wrongCount++;
     combo = 0;
     wrongAnswers.push({
+      n: currentQuestion + 1,
       q: q.q,
       correct: q.o[q.a],
       chosen: selectedIndex === null ? '時間切れ' : q.o[selectedIndex],
@@ -1373,7 +1412,7 @@ function showResult() {
     review.style.display = 'block';
     review.innerHTML = '<p class="review-title">間違えた問題をおさらい</p>' + wrongAnswers.map(w =>
       '<div class="review-item">' +
-        '<p class="rv-q">' + w.q + '</p>' +
+        '<p class="rv-q"><span class="rv-num">Q.' + w.n + '</span>' + w.q + '</p>' +
         '<p class="rv-a"><span class="rv-correct">正解: ' + w.correct + '</span><span class="rv-chosen">あなた: ' + w.chosen + '</span></p>' +
         '<p class="rv-e">' + w.e + '</p>' +
       '</div>').join('');
