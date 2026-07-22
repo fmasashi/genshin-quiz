@@ -335,7 +335,10 @@
     }
 
     /* ===== REVIEW ===== */
-    .review-section { display: none; margin-top: 24px; text-align: left; }
+    .review-section {
+      display: none; margin-top: 28px; padding-top: 22px; text-align: left;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
     .review-title {
       font-size: 12px; color: var(--gold); font-weight: 700; letter-spacing: 2px;
       text-transform: uppercase; margin-bottom: 10px; text-align: center;
@@ -511,11 +514,11 @@
         </div>
         <p class="new-record" id="new-record">🏆 自己ベスト更新！</p>
         <p class="result-message" id="result-message"></p>
-        <div class="review-section" id="review-section"></div>
         <div class="result-buttons">
           <button class="retry-btn" id="retry-btn">もう一度</button>
           <button class="back-btn" id="back-btn">設定に戻る</button>
         </div>
+        <div class="review-section" id="review-section"></div>
       </div>
     </div>
   </div>
