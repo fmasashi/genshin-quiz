@@ -318,6 +318,76 @@
     }
     .back-btn:hover { background: rgba(226, 180, 77, 0.08); transform: translateY(-2px); }
 
+    /* ===== COMBO ===== */
+    .combo-badge {
+      display: none; font-size: 12px; font-weight: 700; color: var(--gold);
+      padding: 2px 8px; border-radius: 10px; background: rgba(226, 180, 77, 0.12);
+    }
+    .combo-badge.show { display: inline-block; animation: comboPop 0.3s ease-out; }
+    @keyframes comboPop { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
+
+    /* ===== STATS ===== */
+    .stats-line { font-size: 12px; color: var(--text-secondary); margin-top: 8px; min-height: 18px; }
+    .stats-line span { color: var(--gold); font-weight: 700; }
+    .new-record {
+      display: none; font-size: 14px; font-weight: 700; color: var(--gold-light);
+      margin-bottom: 12px; animation: comboPop 0.4s ease-out;
+    }
+
+    /* ===== REVIEW ===== */
+    .review-section { display: none; margin-top: 24px; text-align: left; }
+    .review-title {
+      font-size: 12px; color: var(--gold); font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 10px; text-align: center;
+    }
+    .review-item {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+    }
+    .review-item .rv-q { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; line-height: 1.5; }
+    .review-item .rv-a { font-size: 12px; margin-bottom: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
+    .review-item .rv-correct { color: var(--correct); font-weight: 600; }
+    .review-item .rv-chosen { color: var(--wrong); }
+    .review-item .rv-e { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ===== SETTINGS ===== */
+    .settings-btn {
+      position: fixed; top: 14px; right: 14px; z-index: 60;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-secondary); font-size: 17px; cursor: pointer;
+      transition: all 0.2s ease; backdrop-filter: blur(10px);
+    }
+    .settings-btn:hover { border-color: var(--gold); color: var(--gold); transform: rotate(30deg); }
+    .settings-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 8, 16, 0.7); z-index: 70;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .settings-card {
+      background: var(--bg-card); border: 1px solid var(--border-glow);
+      border-radius: 16px; padding: 26px 28px; width: 100%; max-width: 340px;
+      backdrop-filter: blur(20px); animation: fadeInUp 0.25s ease-out;
+    }
+    .settings-title {
+      font-size: 14px; color: var(--gold); font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 20px; text-align: center;
+    }
+    .settings-row { margin-bottom: 18px; }
+    .settings-row label {
+      display: flex; justify-content: space-between; font-size: 13px;
+      color: var(--text-primary); margin-bottom: 8px;
+    }
+    .settings-row label span { color: var(--gold); font-weight: 700; }
+    .settings-row input[type="range"] { width: 100%; accent-color: var(--gold); cursor: pointer; }
+    .settings-close-btn {
+      display: block; margin: 8px auto 0; padding: 9px 32px; background: transparent;
+      border: 1px solid var(--border-glow); color: var(--gold-light); border-radius: 50px;
+      font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; letter-spacing: 2px;
+    }
+    .settings-close-btn:hover { background: rgba(226, 180, 77, 0.08); }
+
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .shake { animation: shake 0.5s ease-in-out; }
@@ -342,6 +412,22 @@
 <body>
   <div class="particles" id="particles"></div>
   <div class="screen-flash" id="screen-flash"></div>
+
+  <button class="settings-btn" id="settings-btn" title="設定">⚙</button>
+  <div class="settings-overlay" id="settings-overlay">
+    <div class="settings-card">
+      <p class="settings-title">設定</p>
+      <div class="settings-row">
+        <label>BGM音量 <span id="bgm-vol-label">40%</span></label>
+        <input type="range" id="bgm-vol" min="0" max="100" step="5">
+      </div>
+      <div class="settings-row">
+        <label>SE音量 <span id="se-vol-label">100%</span></label>
+        <input type="range" id="se-vol" min="0" max="100" step="5">
+      </div>
+      <button class="settings-close-btn" id="settings-close">閉じる</button>
+    </div>
+  </div>
 
   <div class="container">
     <!-- START SCREEN -->
@@ -372,6 +458,7 @@
         <p class="section-label">出題数</p>
         <div class="count-options" id="count-options"></div>
         <p class="available-count">選択中の問題プール: <span id="pool-count">0</span>問</p>
+        <p class="stats-line" id="stats-line"></p>
       </div>
 
       <button class="start-btn" id="start-btn">スタート</button>
@@ -383,6 +470,7 @@
         <div class="quiz-header-left">
           <div class="question-counter">Q.<span id="q-current">1</span> / <span id="q-total">10</span></div>
           <div class="quiz-tally"><span class="tally-correct">○<span id="tally-correct">0</span></span><span class="tally-wrong">×<span id="tally-wrong">0</span></span></div>
+          <span class="combo-badge" id="combo-badge"></span>
         </div>
         <button class="quit-btn" id="quit-btn">中断</button>
       </div>
@@ -421,7 +509,9 @@
           <div class="stat-item"><div class="stat-value correct-val" id="stat-correct">0</div><div class="stat-label">正解</div></div>
           <div class="stat-item"><div class="stat-value wrong-val" id="stat-wrong">0</div><div class="stat-label">不正解</div></div>
         </div>
+        <p class="new-record" id="new-record">🏆 自己ベスト更新！</p>
         <p class="result-message" id="result-message"></p>
+        <div class="review-section" id="review-section"></div>
         <div class="result-buttons">
           <button class="retry-btn" id="retry-btn">もう一度</button>
           <button class="back-btn" id="back-btn">設定に戻る</button>
@@ -669,12 +759,26 @@ let questions = [];
 let currentQuestion = 0;
 let score = 0;
 let wrongCount = 0;
+let combo = 0;
+let wrongAnswers = [];
 let answered = false;
 let timerInterval = null;
 
 
 const DIFF_KEYS = ['easy', 'normal', 'hard', 'extreme'];
 const TIMER_MAP = { easy: 20, normal: 15, hard: 12, extreme: 20, all: 15 };
+
+// ── 保存データ（戦績・音量・出題履歴） ──
+const STORAGE_KEY = 'genshin-quiz-save';
+function loadSave() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) { return {}; }
+}
+const saveData = loadSave();
+const volumes = Object.assign({ bgm: 0.4, se: 1.0 }, saveData.volumes);
+function persistSave() {
+  saveData.volumes = volumes;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); } catch (e) {}
+}
 
 // DOM
 const $start   = document.getElementById('start-screen');
@@ -824,6 +928,7 @@ function updatePoolCount() {
   const pool = getPool();
   document.getElementById('pool-count').textContent = pool.length;
   updateStartBtn();
+  renderStatsLine();
   // Update chip counts
   document.querySelectorAll('.genre-chip[data-genre]').forEach(chip => {
     const g = chip.dataset.genre;
@@ -861,6 +966,7 @@ $backBtn.addEventListener('click', () => {
   $result.style.display = 'none';
   $start.style.display = 'block';
   $start.style.animation = 'fadeInUp 0.5s ease-out';
+  bgmEngine.setScene('title');
 });
 $quitBtn.addEventListener('click', () => {
   playClickSound();
@@ -868,6 +974,7 @@ $quitBtn.addEventListener('click', () => {
   $quiz.style.display = 'none';
   $start.style.display = 'block';
   $start.style.animation = 'fadeInUp 0.5s ease-out';
+  bgmEngine.setScene('title');
 });
 
 function startGame() {
@@ -875,14 +982,24 @@ function startGame() {
   const count = Math.min(questionCount, pool.length);
   if (count === 0) return;
 
-  // 正解の位置が偏らないよう、出題ごとに選択肢の並びもシャッフルする
-  questions = shuffle(pool).slice(0, count).map(q => {
-    const order = shuffle([0, 1, 2, 3]);
-    return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
-  });
+  // 未出題の問題を優先し（直近の出題履歴を参照）、選択肢の並びもシャッフルする
+  const recent = saveData.recentQ || [];
+  questions = shuffle(pool)
+    .sort((a, b) => recent.lastIndexOf(a.q) - recent.lastIndexOf(b.q))
+    .slice(0, count)
+    .map(q => {
+      const order = shuffle([0, 1, 2, 3]);
+      return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
+    });
+  const askedKeys = questions.map(q => q.q);
+  saveData.recentQ = recent.filter(k => !askedKeys.includes(k)).concat(askedKeys).slice(-80);
+  persistSave();
   currentQuestion = 0;
   score = 0;
   wrongCount = 0;
+  combo = 0;
+  wrongAnswers = [];
+  document.getElementById('combo-badge').className = 'combo-badge';
   document.getElementById('q-total').textContent = questions.length;
   document.getElementById('tally-correct').textContent = '0';
   document.getElementById('tally-wrong').textContent = '0';
@@ -890,6 +1007,7 @@ function startGame() {
   $start.style.display = 'none';
   $quiz.style.display = 'block';
   $result.style.display = 'none';
+  bgmEngine.setScene('quiz');
 
   showQuestion();
 }
@@ -969,17 +1087,35 @@ function revealAnswer(selectedIndex) {
 
   if (selectedIndex === q.a) {
     score++;
+    combo++;
     document.getElementById('tally-correct').textContent = score;
     playCorrectSound();
     flashScreen('correct-flash');
   } else {
     wrongCount++;
+    combo = 0;
+    wrongAnswers.push({
+      q: q.q,
+      correct: q.o[q.a],
+      chosen: selectedIndex === null ? '時間切れ' : q.o[selectedIndex],
+      e: q.e,
+    });
     document.getElementById('tally-wrong').textContent = wrongCount;
     playWrongSound();
     flashScreen('wrong-flash');
     const card = document.getElementById('question-card');
     card.classList.add('shake');
     setTimeout(() => card.classList.remove('shake'), 500);
+  }
+
+  const comboBadge = document.getElementById('combo-badge');
+  if (combo >= 2) {
+    comboBadge.textContent = '🔥 ' + combo + ' COMBO';
+    comboBadge.className = 'combo-badge';
+    comboBadge.offsetHeight;
+    comboBadge.className = 'combo-badge show';
+  } else {
+    comboBadge.className = 'combo-badge';
   }
 
   showExplanation(q.e);
@@ -997,14 +1133,17 @@ function getAudioCtx() {
 }
 
 function playCorrectSound() {
+  if (volumes.se <= 0) return;
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
-  [523.25, 659.25, 783.99].forEach((freq, i) => {
+  const notes = [523.25, 659.25, 783.99];
+  if (combo >= 5) notes.push(1318.51); // 5コンボ以上でキラッと一音追加
+  notes.forEach((freq, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.18, now + i * 0.1);
+    gain.gain.setValueAtTime(0.18 * volumes.se, now + i * 0.1);
     gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4);
     osc.connect(gain).connect(ctx.destination);
     osc.start(now + i * 0.1);
@@ -1013,6 +1152,7 @@ function playCorrectSound() {
 }
 
 function playWrongSound() {
+  if (volumes.se <= 0) return;
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
@@ -1020,7 +1160,7 @@ function playWrongSound() {
   osc.type = 'square';
   osc.frequency.setValueAtTime(200, now);
   osc.frequency.linearRampToValueAtTime(120, now + 0.35);
-  gain.gain.setValueAtTime(0.15, now);
+  gain.gain.setValueAtTime(0.15 * volumes.se, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
   osc.connect(gain).connect(ctx.destination);
   osc.start(now);
@@ -1028,13 +1168,14 @@ function playWrongSound() {
 }
 
 function playClickSound() {
+  if (volumes.se <= 0) return;
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = 'sine';
   osc.frequency.value = 880;
-  gain.gain.setValueAtTime(0.08, now);
+  gain.gain.setValueAtTime(0.08 * volumes.se, now);
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
   osc.connect(gain).connect(ctx.destination);
   osc.start(now);
@@ -1042,6 +1183,7 @@ function playClickSound() {
 }
 
 function playFanfare() {
+  if (volumes.se <= 0) return;
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
   [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
@@ -1049,13 +1191,88 @@ function playFanfare() {
     const gain = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.15, now + i * 0.15);
+    gain.gain.setValueAtTime(0.15 * volumes.se, now + i * 0.15);
     gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.6);
     osc.connect(gain).connect(ctx.destination);
     osc.start(now + i * 0.15);
     osc.stop(now + i * 0.15 + 0.6);
   });
 }
+
+// ── BGM（Web Audioによる自動生成・原神風アンビエント） ──
+const bgmEngine = {
+  gainNode: null, timer: null, scene: 'title', step: 0, nextNoteTime: 0,
+  // Dメジャーペンタトニック（穏やかなファンタジー調）
+  SCALE: [293.66, 329.63, 369.99, 440.00, 493.88, 587.33, 659.25, 739.99, 880.00],
+  CHORDS: [
+    [146.83, 220.00, 293.66, 369.99],  // D
+    [123.47, 185.00, 246.94, 293.66],  // Bm
+    [98.00, 146.83, 196.00, 246.94],   // G
+    [110.00, 164.81, 220.00, 277.18],  // A
+  ],
+  CFG: {
+    title:  { bpm: 62, density: 0.40, high: 0 },
+    quiz:   { bpm: 84, density: 0.60, high: 0 },
+    result: { bpm: 72, density: 0.65, high: 1 },
+  },
+  setScene(scene) { this.scene = scene; this.ensure(); },
+  ensure() {
+    if (volumes.bgm <= 0) { this.stop(); return; }
+    if (this.timer || !audioCtx) return; // AudioContextは初回のユーザー操作後に生成される
+    this.startLoop();
+  },
+  startLoop() {
+    const ctx = getAudioCtx();
+    if (!this.gainNode) { this.gainNode = ctx.createGain(); this.gainNode.connect(ctx.destination); }
+    this.gainNode.gain.value = volumes.bgm * 0.5;
+    this.nextNoteTime = ctx.currentTime + 0.1;
+    this.step = 0;
+    this.timer = setInterval(() => this.schedule(), 120);
+  },
+  stop() { if (this.timer) { clearInterval(this.timer); this.timer = null; } },
+  setVolume() {
+    if (this.gainNode) this.gainNode.gain.value = volumes.bgm * 0.5;
+    if (volumes.bgm <= 0) this.stop();
+    else if (!this.timer && audioCtx) this.startLoop();
+  },
+  schedule() {
+    const ctx = getAudioCtx();
+    const cfg = this.CFG[this.scene] || this.CFG.title;
+    const beat = 60 / cfg.bpm / 2; // 8分音符
+    while (this.nextNoteTime < ctx.currentTime + 0.35) {
+      const bar = Math.floor(this.step / 8) % this.CHORDS.length;
+      if (this.step % 8 === 0) this.pad(this.CHORDS[bar], this.nextNoteTime, beat * 8);
+      if (Math.random() < cfg.density) {
+        let idx = Math.floor(Math.random() * this.SCALE.length);
+        if (cfg.high && idx < 4) idx += 4;
+        this.pluck(this.SCALE[idx], this.nextNoteTime);
+      }
+      this.step++;
+      this.nextNoteTime += beat;
+    }
+  },
+  pad(freqs, t, dur) {
+    const ctx = getAudioCtx();
+    freqs.forEach(f => {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.05, t + dur * 0.3);
+      g.gain.linearRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g).connect(this.gainNode);
+      osc.start(t); osc.stop(t + dur);
+    });
+  },
+  pluck(f, t) {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = 'triangle'; osc.frequency.value = f;
+    g.gain.setValueAtTime(0.07, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    osc.connect(g).connect(this.gainNode);
+    osc.start(t); osc.stop(t + 0.6);
+  },
+};
 
 // ── SCREEN FLASH ──
 function flashScreen(type) {
@@ -1133,6 +1350,46 @@ function showResult() {
   document.getElementById('result-rank').textContent = rank;
   document.getElementById('result-title').textContent = title;
   document.getElementById('result-message').textContent = message;
+
+  bgmEngine.setScene('result');
+
+  // 戦績の更新（難易度別）
+  saveData.stats = saveData.stats || {};
+  const st = saveData.stats[selectedDifficulty] || { best: null, plays: 0, correct: 0, answered: 0 };
+  st.plays++;
+  st.correct += score;
+  st.answered += total;
+  let newRecord = false;
+  if (!st.best || pct > st.best.score / st.best.total) {
+    newRecord = st.plays > 1;
+    st.best = { score, total };
+  }
+  saveData.stats[selectedDifficulty] = st;
+  persistSave();
+  renderStatsLine();
+  document.getElementById('new-record').style.display = newRecord ? 'block' : 'none';
+
+  // 間違えた問題の復習リスト
+  const review = document.getElementById('review-section');
+  if (wrongAnswers.length) {
+    review.style.display = 'block';
+    review.innerHTML = '<p class="review-title">間違えた問題をおさらい</p>' + wrongAnswers.map(w =>
+      '<div class="review-item">' +
+        '<p class="rv-q">' + w.q + '</p>' +
+        '<p class="rv-a"><span class="rv-correct">正解: ' + w.correct + '</span><span class="rv-chosen">あなた: ' + w.chosen + '</span></p>' +
+        '<p class="rv-e">' + w.e + '</p>' +
+      '</div>').join('');
+  } else {
+    review.style.display = 'none';
+  }
+}
+
+function renderStatsLine() {
+  const el = document.getElementById('stats-line');
+  const st = saveData.stats && saveData.stats[selectedDifficulty];
+  if (!st || !st.plays) { el.textContent = ''; return; }
+  const pct = Math.round(st.correct / st.answered * 100);
+  el.innerHTML = '自己ベスト <span>' + st.best.score + '/' + st.best.total + '</span> ｜ プレイ <span>' + st.plays + '</span>回 ｜ 累計正答率 <span>' + pct + '%</span>';
 }
 
 // ── CONFETTI ──
@@ -1174,6 +1431,62 @@ function spawnMiniConfetti(btn) {
   }
   setTimeout(() => c.remove(), 3000);
 }
+
+// ── キーボード操作（1〜4で回答 / Enter・Spaceで次へ） ──
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('settings-overlay').style.display === 'flex') {
+    if (e.key === 'Escape') closeSettings();
+    return;
+  }
+  if ($quiz.style.display !== 'block') return;
+  if (!answered && ['1', '2', '3', '4'].includes(e.key)) {
+    const btn = document.querySelectorAll('.option-btn')[Number(e.key) - 1];
+    if (btn) btn.click();
+  } else if (answered && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    $nextBtn.click();
+  }
+});
+
+// ── 設定パネル（音量調整） ──
+const $bgmVol = document.getElementById('bgm-vol');
+const $seVol = document.getElementById('se-vol');
+function renderVolumeUI() {
+  $bgmVol.value = Math.round(volumes.bgm * 100);
+  $seVol.value = Math.round(volumes.se * 100);
+  document.getElementById('bgm-vol-label').textContent = $bgmVol.value + '%';
+  document.getElementById('se-vol-label').textContent = $seVol.value + '%';
+}
+function closeSettings() {
+  document.getElementById('settings-overlay').style.display = 'none';
+}
+document.getElementById('settings-btn').addEventListener('click', () => {
+  renderVolumeUI();
+  document.getElementById('settings-overlay').style.display = 'flex';
+});
+document.getElementById('settings-close').addEventListener('click', () => { playClickSound(); closeSettings(); });
+document.getElementById('settings-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'settings-overlay') closeSettings();
+});
+$bgmVol.addEventListener('input', () => {
+  volumes.bgm = $bgmVol.value / 100;
+  document.getElementById('bgm-vol-label').textContent = $bgmVol.value + '%';
+  bgmEngine.setVolume();
+  persistSave();
+});
+$seVol.addEventListener('input', () => {
+  volumes.se = $seVol.value / 100;
+  document.getElementById('se-vol-label').textContent = $seVol.value + '%';
+  persistSave();
+});
+$seVol.addEventListener('change', () => playClickSound());
+
+// ── 初回のユーザー操作でオーディオ開始（ブラウザの自動再生制限対策） ──
+document.addEventListener('pointerdown', () => {
+  const ctx = getAudioCtx();
+  if (ctx.state === 'suspended') ctx.resume();
+  bgmEngine.ensure();
+}, { once: true });
 </script>
 </body>
 </html>
