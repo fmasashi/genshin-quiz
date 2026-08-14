@@ -471,11 +471,7 @@
       </div>
 
       <div class="settings-section" id="extreme-warning" style="display: none;">
-        <div class="extreme-warning-box">
-          ⚠️ <strong>超上級はめっちゃ難しいから！</strong><br>
-          最新ストーリーの<strong>ネタバレ</strong>を含む問題もあるかもだから！<br>
-          覚悟ができた旅人だけ挑戦してね（全ジャンルから10問出題）
-        </div>
+        <div class="extreme-warning-box" id="extreme-warning-box"></div>
       </div>
 
       <div class="settings-section">
@@ -674,9 +670,9 @@ const quizData = {
     extreme: [
       { q: "魔神オロバシが天理に罪を問われる原因となった、世界の秘密が記された禁書は？", o: ["『日月前事』","『白夜国地誌』","『淵下宮御史記』","『千風神録』"], a: 0, e: "オロバシは淵下宮（白夜国）を治める中で禁書『日月前事』に触れ、旧世界の歴史や「七王」の存在といった知ってはならない知識を得たため天理に断罪されました。最終的に雷電将軍の一太刀に討たれ、ヤシオリ島にその骨が残っています。" },
       { q: "「原初のあの方」が創造したとされる「四つの影」のうち、『時』を司る執政の名前は？", o: ["イスタロト","パネース","ロンバダ","ケーリュケイオン"], a: 0, e: "時の執政イスタロトは「四つの影」の一柱で、七神の台頭以前は古代モンドや淵下宮で「千風の神」などとして崇拝されていました。今のテイワットではほぼ忘れ去られています。" },
-      { q: "カーンルイア最後の王とされる「独眼の王」の名前は？", o: ["エルミン","アンフォルタス","クロタール・アルベリヒ","ダインスレイヴ"], a: 0, e: "カーンルイア最後の王は独眼の王エルミン（英語版：Irmin）です。エルミンが病に倒れた後は、王家の血を引かないアルベリヒ家（摂政アンフォルタスら）が実権を握り国を治めました。" },
+      { q: "カーンルイア最後の王、「黒王」とも呼ばれる独眼の王の名前は？", o: ["イルミンズール","アンフォルタス","クロタール・アルベリヒ","フロプタチュール"], a: 0, e: "カーンルイア最後の王は「黒王」イルミンズール（イルミンとも）です。空月の歌では、赤月王朝の没落後に黒日王朝がカーンルイアを支配した歴史や、黒王直属の処刑人「月の狩人」の存在も明かされました。" },
       { q: "カーンルイアの「五大罪人」の一人で、ダインスレイヴの実の兄とされる「予言者」は？", o: ["ヴェズルフェルニル","スルトロッチ","レインドット","アンフォルタス"], a: 0, e: "「予言者」ヴェズルフェルニルは未来視の力を持つダインスレイヴの実兄で、深淵に堕ちた五大罪人の一人です。クロタール・アルベリヒを導き、深淵教団創設のきっかけを作ったとされています。" },
-      { q: "ナド・クライ編の核心に関わる「月の三女神」の名前の正しい組み合わせは？", o: ["エリア・サンナタ・カノン","エリア・ソネット・カノン","セレネ・サンナタ・ルナリア","エリア・サンナタ・カンタータ"], a: 0, e: "月の三女神の日本語名はエリア、サンナタ、カノンです。英語版ではAria、Sonnet、Canonと、いずれも音楽に由来する名前になっています。" },
+      { q: "ナド・クライ編の核心に関わる「月の三女神」の名前の正しい組み合わせは？", o: ["アリア・ソネット・カノン","アリア・ソナタ・カノン","アリア・ソネット・フーガ","セレナーデ・ソネット・カノン"], a: 0, e: "月の三女神の名前はアリア、ソネット、カノンで、いずれも音楽に由来します。空月の歌第8幕では、三女神がそれぞれの月の祝福をコロンビーナに授ける場面が描かれました。" },
     ]
   },
 
@@ -790,7 +786,7 @@ let timerInterval = null;
 
 
 const DIFF_KEYS = ['easy', 'normal', 'hard', 'extreme'];
-const TIMER_MAP = { easy: 20, normal: 15, hard: 12, extreme: 20, all: 15 };
+const TIMER_MAP = { easy: 20, normal: 15, hard: 12, extreme: 20 };
 
 // ── 保存データ（戦績・音量・出題履歴） ──
 const STORAGE_KEY = 'genshin-quiz-save';
@@ -856,11 +852,6 @@ const $quitBtn  = document.getElementById('quit-btn');
 })();
 
 function countQuestions(genre, diff) {
-  if (genre === 'all') {
-    let t = 0;
-    for (const g of Object.keys(GENRES)) t += countQuestions(g, diff);
-    return t;
-  }
   const data = quizData[genre];
   if (!data) return 0;
   if (diff === 'all') return DIFF_KEYS.reduce((t, d) => t + (data[d]?.length || 0), 0);
@@ -909,16 +900,28 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 });
 
 // 超上級選択時はジャンル選択を注意書きに差し替え、出題数を10問に固定する
+// （全難易度にも超上級問題が混ざるため、そのときはネタバレ注意だけ表示する）
+const WARN_EXTREME = '⚠️ <strong>超上級はめっちゃ難しいから！</strong><br>最新ストーリーの<strong>ネタバレ</strong>を含む問題もあるかもだから！<br>覚悟ができた旅人だけ挑戦してね（全ジャンルから10問出題）';
+const WARN_ALL = '⚠️ <strong>全難易度には超上級の問題も混ざるよ！</strong><br>最新ストーリーの<strong>ネタバレ</strong>を含む問題が出ることがあるから注意してね';
+let preExtremeCount = null;
 function updateExtremeUI() {
   const isExtreme = selectedDifficulty === 'extreme';
+  const isAll = selectedDifficulty === 'all';
   document.getElementById('genre-section').style.display = isExtreme ? 'none' : '';
-  document.getElementById('extreme-warning').style.display = isExtreme ? 'block' : 'none';
+  document.getElementById('extreme-warning').style.display = (isExtreme || isAll) ? 'block' : 'none';
+  if (isExtreme || isAll) document.getElementById('extreme-warning-box').innerHTML = isExtreme ? WARN_EXTREME : WARN_ALL;
+
+  if (isExtreme) {
+    if (preExtremeCount === null) preExtremeCount = questionCount;
+    questionCount = 10;
+  } else if (preExtremeCount !== null) {
+    questionCount = preExtremeCount;
+    preExtremeCount = null;
+  }
   document.querySelectorAll('.count-btn').forEach(b => {
-    const is10 = b.dataset.value === '10';
-    b.style.display = (isExtreme && !is10) ? 'none' : '';
-    if (isExtreme) b.classList.toggle('active', is10);
+    b.style.display = (isExtreme && b.dataset.value !== '10') ? 'none' : '';
+    b.classList.toggle('active', Number(b.dataset.value) === questionCount);
   });
-  if (isExtreme) questionCount = 10;
 }
 
 // ── Question count buttons ──
@@ -967,7 +970,7 @@ function getPool() {
 function updatePoolCount() {
   const pool = getPool();
   document.getElementById('pool-count').textContent = pool.length;
-  updateStartBtn();
+  $startBtn.disabled = pool.length === 0;
   renderStatsLine();
   // Update chip counts
   document.querySelectorAll('.genre-chip[data-genre]').forEach(chip => {
@@ -978,10 +981,7 @@ function updatePoolCount() {
   });
 }
 
-function updateStartBtn() {
-  $startBtn.disabled = getPool().length === 0;
-}
-
+updateExtremeUI();
 updatePoolCount();
 
 // ── Shuffle ──
@@ -1018,18 +1018,16 @@ function startGame() {
   const count = Math.min(questionCount, pool.length);
   if (count === 0) return;
 
-  // 未出題の問題を優先し（直近の出題履歴を参照）、選択肢の並びもシャッフルする
+  // 未出題の問題を優先しつつ（直近の出題履歴を参照）、各グループ内の順序はランダムを保つ
   const recent = saveData.recentQ || [];
-  questions = shuffle(pool)
-    .sort((a, b) => recent.lastIndexOf(a.q) - recent.lastIndexOf(b.q))
+  const fresh = [], seen = [];
+  for (const q of shuffle(pool)) (recent.includes(q.q) ? seen : fresh).push(q);
+  questions = fresh.concat(seen)
     .slice(0, count)
     .map(q => {
       const order = shuffle([0, 1, 2, 3]);
       return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
     });
-  const askedKeys = questions.map(q => q.q);
-  saveData.recentQ = recent.filter(k => !askedKeys.includes(k)).concat(askedKeys).slice(-80);
-  persistSave();
   currentQuestion = 0;
   score = 0;
   wrongCount = 0;
@@ -1050,6 +1048,12 @@ function startGame() {
 function showQuestion() {
   answered = false;
   const q = questions[currentQuestion];
+
+  // 出題履歴に記録（実際に表示した問題のみ・上限200件）
+  const rec = (saveData.recentQ || []).filter(k => k !== q.q);
+  rec.push(q.q);
+  saveData.recentQ = rec.slice(-200);
+  persistSave();
 
   document.getElementById('q-current').textContent = currentQuestion + 1;
   document.getElementById('q-category').textContent = q.category;
@@ -1085,24 +1089,49 @@ function showQuestion() {
     container.appendChild(btn);
   });
 
-  startTimer();
+  // 全難易度モードでは問題ごとの難易度に応じた制限時間を使う
+  startTimer(TIMER_MAP[selectedDifficulty === 'all' ? q.difficulty : selectedDifficulty] || 15);
 }
 
-// ── TIMER ──
-function startTimer() {
-  clearInterval(timerInterval);
-  const duration = TIMER_MAP[selectedDifficulty] || 15;
-  let timeLeft = duration;
+// ── TIMER（実時間ベース。バックグラウンドでのタイマー間引きの影響を受けない） ──
+let timerDuration = 0;
+let timerDeadline = 0;
+let timerPausedRemaining = null;
+
+function startTimer(duration) {
+  timerDuration = duration;
+  timerPausedRemaining = null;
   const timerFill = document.getElementById('timer-fill');
   timerFill.style.width = '100%';
   timerFill.classList.remove('warning');
+  runTimer(duration * 1000);
+}
 
+function runTimer(remainingMs) {
+  clearInterval(timerInterval);
+  timerDeadline = performance.now() + remainingMs;
+  const timerFill = document.getElementById('timer-fill');
   timerInterval = setInterval(() => {
-    timeLeft -= 0.05;
-    timerFill.style.width = Math.max(0, (timeLeft / duration) * 100) + '%';
-    if (timeLeft <= duration * 0.3) timerFill.classList.add('warning');
-    if (timeLeft <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
+    const remaining = timerDeadline - performance.now();
+    timerFill.style.width = Math.max(0, remaining / (timerDuration * 1000) * 100) + '%';
+    if (remaining <= timerDuration * 300) timerFill.classList.add('warning');
+    if (remaining <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
   }, 50);
+}
+
+// 設定パネルを開いている間は制限時間を一時停止する
+function pauseTimerForSettings() {
+  if ($quiz.style.display === 'block' && !answered && timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timerPausedRemaining = Math.max(0, timerDeadline - performance.now());
+  }
+}
+function resumeTimerFromSettings() {
+  if (timerPausedRemaining !== null && $quiz.style.display === 'block' && !answered) {
+    runTimer(timerPausedRemaining);
+  }
+  timerPausedRemaining = null;
 }
 
 function timeUp() {
@@ -1152,6 +1181,8 @@ function revealAnswer(selectedIndex) {
   } else {
     comboBadge.className = 'combo-badge';
   }
+
+  document.getElementById('progress-fill').style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
 
   showExplanation(q.e);
   $nextBtn.style.display = 'block';
@@ -1312,10 +1343,12 @@ const bgmEngine = {
 };
 
 // ── SCREEN FLASH ──
+let flashTimeout = null;
 function flashScreen(type) {
   const el = document.getElementById('screen-flash');
+  clearTimeout(flashTimeout);
   el.className = 'screen-flash ' + type;
-  setTimeout(() => { el.className = 'screen-flash'; }, 350);
+  flashTimeout = setTimeout(() => { el.className = 'screen-flash'; }, 350);
 }
 
 // ── SELECT ANSWER ──
@@ -1360,7 +1393,7 @@ function showResult() {
   const circumference = 2 * Math.PI * 70;
   circle.style.transition = 'none';
   circle.style.strokeDashoffset = circumference;
-  circle.offsetHeight;
+  circle.getBoundingClientRect(); // SVG要素にoffsetHeightはないため、リフローはこちらで発生させる
   circle.style.transition = 'stroke-dashoffset 1.5s ease-out';
   setTimeout(() => { circle.style.strokeDashoffset = circumference - (pct * circumference); }, 100);
 
@@ -1446,7 +1479,7 @@ function spawnConfetti() {
     p.style.borderRadius = Math.random()>0.5?'50%':'2px';
     c.appendChild(p);
   }
-  setTimeout(() => c.remove(), 5000);
+  setTimeout(() => c.remove(), 7000);
 }
 
 function spawnMiniConfetti(btn) {
@@ -1496,9 +1529,11 @@ function renderVolumeUI() {
 }
 function closeSettings() {
   document.getElementById('settings-overlay').style.display = 'none';
+  resumeTimerFromSettings();
 }
 document.getElementById('settings-btn').addEventListener('click', () => {
   renderVolumeUI();
+  pauseTimerForSettings();
   document.getElementById('settings-overlay').style.display = 'flex';
 });
 document.getElementById('settings-close').addEventListener('click', () => { playClickSound(); closeSettings(); });
@@ -1518,16 +1553,27 @@ $seVol.addEventListener('input', () => {
 });
 $seVol.addEventListener('change', () => playClickSound());
 
-// ── 初回のユーザー操作（クリックまたはキー入力）でオーディオ開始（ブラウザの自動再生制限対策） ──
+// ── 初回のユーザー操作でオーディオ開始（ブラウザの自動再生制限対策） ──
+// タッチ端末では pointerdown 時点で再生許可が下りないため、
+// AudioContext が running になるのを確認できるまでリスナーを解除しない
+const AUDIO_UNLOCK_EVENTS = ['pointerup', 'keydown', 'click'];
 function initAudioOnce() {
-  document.removeEventListener('pointerdown', initAudioOnce);
-  document.removeEventListener('keydown', initAudioOnce);
   const ctx = getAudioCtx();
-  if (ctx.state === 'suspended') ctx.resume();
-  bgmEngine.ensure();
+  const finish = () => {
+    if (ctx.state !== 'running') return;
+    AUDIO_UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, initAudioOnce));
+    bgmEngine.ensure();
+  };
+  if (ctx.state === 'suspended') ctx.resume().then(finish).catch(() => {});
+  else finish();
 }
-document.addEventListener('pointerdown', initAudioOnce);
-document.addEventListener('keydown', initAudioOnce);
+AUDIO_UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, initAudioOnce));
+
+// タブが裏に回ったらBGMを一時停止し、戻ったら再開する（間引きによる断続再生の防止）
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) bgmEngine.stop();
+  else bgmEngine.ensure();
+});
 </script>
 </body>
 </html>
