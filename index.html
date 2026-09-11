@@ -20,9 +20,6 @@
       --accent-pyro: #ef7938;
       --accent-hydro: #4cc2f1;
       --accent-electro: #b08fc2;
-      --accent-dendro: #a5c83b;
-      --accent-cryo: #9dd5e5;
-      --accent-geo: #f2b723;
       --text-primary: #eae4d9;
       --text-secondary: #9a9489;
       --correct: #4ade80;
@@ -202,7 +199,7 @@
     .question-card {
       background: var(--bg-card); border: 1px solid rgba(226, 180, 77, 0.1);
       border-radius: 10px; padding: 10px 16px; margin-bottom: 8px;
-      backdrop-filter: blur(20px); position: relative; overflow: hidden; animation: fadeInUp 0.4s ease-out;
+      backdrop-filter: blur(20px); position: relative; overflow: hidden;
     }
     .question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 
@@ -262,7 +259,7 @@
       background: linear-gradient(135deg, rgba(226, 180, 77, 0.2), rgba(226, 180, 77, 0.1));
       border: 1px solid var(--gold); color: var(--gold-light); border-radius: 50px;
       font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all 0.3s ease; letter-spacing: 2px;
+      transition: all 0.3s ease; letter-spacing: 2px; animation: fadeInUp 0.4s ease-out;
     }
     .next-btn:hover { background: linear-gradient(135deg, rgba(226, 180, 77, 0.3), rgba(226, 180, 77, 0.15)); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(226, 180, 77, 0.2); }
 
@@ -406,7 +403,6 @@
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .shake { animation: shake 0.5s ease-in-out; }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 10% { transform: translateX(-12px); } 30% { transform: translateX(10px); } 50% { transform: translateX(-8px); } 70% { transform: translateX(6px); } 90% { transform: translateX(-3px); } }
 
     .confetti-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100; overflow: hidden; }
@@ -456,13 +452,7 @@
 
       <div class="settings-section">
         <p class="section-label">難易度</p>
-        <div class="difficulty-options">
-          <button class="diff-btn active" data-diff="easy">初級</button>
-          <button class="diff-btn" data-diff="normal">中級</button>
-          <button class="diff-btn" data-diff="hard">上級</button>
-          <button class="diff-btn" data-diff="extreme">超上級</button>
-          <button class="diff-btn" data-diff="all">全難易度</button>
-        </div>
+        <div class="difficulty-options" id="difficulty-options"></div>
       </div>
 
       <div class="settings-section" id="genre-section">
@@ -564,16 +554,16 @@ const quizData = {
       { q: "璃月の岩神の名前は？", o: ["ウェンティ","鍾離","雷電将軍","ナヒーダ"], a: 1, e: "鍾離は岩神モラクスの人間の姿（神の心を譲渡した後の姿）です。往生堂の客卿として働きながら、凡人としての生活を楽しんでいます。" },
       { q: "タルタリヤが所属する組織は？", o: ["西風騎士団","千岩軍","ファデュイ","璃月七星"], a: 2, e: "タルタリヤ（公子）はファデュイ執行官の第11位です。戦闘狂でありながら、故郷にいる弟のテウセルには優しい良き兄という一面も持っています。" },
       { q: "クレーの得意な元素は？", o: ["風","炎","雷","岩"], a: 1, e: "クレーは炎元素のキャラクターで、自身で作った爆弾を使った戦闘スタイルが特徴です。西風騎士団の「火花騎士」としてモンドの魚を爆破してはジンに怒られています。" },
-      { q: "Ver6.6で実装された、魔女会「ヘクセンツィルケル」のメンバーであるキャラクターは？", o: ["アリス","ニコ（Nicole）","レインドット","バーンデビーナ"], a: 1, e: "Ver6.6にて実装された「ニコ（Nicole）」は炎元素の法器キャラクターです。魔女会の一員として、チーム全体の攻撃力アップやシールド付与を行う強力なサポート能力を持っています。" },
+      { q: "Ver6.6で実装された、魔女会「ヘクセンツィルケル」のメンバーであるキャラクターは？", o: ["アリス","ニコ","レインドット","バーベロス"], a: 1, e: "Ver6.6（Luna VII）で実装された「ニコ」は星5の炎元素・法器キャラクターで、魔女会の一員「コードN」ニコ・リヤンその人です。攻撃力を参照する炎元素シールドと、チーム全体の攻撃力アップを担うサポーターとして活躍します。" },
       { q: "フィッシュルの本名は？", o: ["エミ","リサ","モナ","ジン"], a: 0, e: "フィッシュルの本名は「エミ」です。『フィッシュル・ヴォン・ルフシュロス・ナフィードット』という中二病的な設定を貫いており、オズという喋る鴉を従えています。" },
       { q: "刻晴の元素は？", o: ["炎","水","雷","風"], a: 2, e: "刻晴（こくせい）は雷元素の片手剣キャラクターで、璃月七星の「玉衡星（ぎょくこう）」です。神に頼らず人間の手で璃月を導くべきだと考えています。" },
     ],
     normal: [
-      { q: "甘雨は何と人間のハーフ？", o: ["仙獣・麒麟","龍","鳳凰","天狐"], a: 0, e: "甘雨は仙獣の麒麟と人間のハーフで、璃月七星の秘書「月海亭」の使者として3000年以上働いています。ベジタリアンで昼寝が好きです。" },
+      { q: "甘雨は何と人間のハーフ？", o: ["仙獣・麒麟","龍","鳳凰","天狐"], a: 0, e: "甘雨は仙獣の麒麟と人間のハーフで、璃月七星の事務を担う「月海亭」の秘書として3000年以上働いています。ベジタリアンで昼寝が好きです。" },
       { q: "胡桃が経営する店の名前は？", o: ["万民堂","往生堂","不卜庵","和裕茶館"], a: 1, e: "胡桃（フータオ）は璃月の葬儀屋「往生堂」の第77代堂主です。鍾離を客卿として雇っており、詩を作るのが得意で行秋とは詩の友でもあります。" },
       { q: "八重神子の種族は？", o: ["人間","天狐","鬼","龍"], a: 1, e: "八重神子は天狐（白辰の血脈）の一族で、鳴神大社の宮司を務めています。八重堂の編集長としても活動しており、ライトノベル出版に熱心です。" },
-      { q: "楓原万葉の出身国は？", o: ["モンド","璃月","稲妻","スメール"], a: 2, e: "楓原万葉（かえではらかずは）は稲妻出身の浪人で、目狩り令を逃れて南十字船隊（北斗）の船に乗り込み、モンドの冒険者と行動を共にしていました。" },
-      { q: "ディシアの元素は？", o: ["炎","岩","草","雷"], a: 0, e: "ディシアは炎元素の両手剣キャラクターで、スメールの砂漠出身の傭兵「エルマイト旅団」の一員です。「熾鬣の獅子」の異名を持ちます。" },
+      { q: "楓原万葉の出身国は？", o: ["モンド","璃月","稲妻","スメール"], a: 2, e: "楓原万葉（かえではらかずは）は稲妻出身の浪人です。目狩り令で友を失ったのち稲妻を離れ、北斗が率いる南十字船隊に身を寄せていました。" },
+      { q: "ディシアの元素は？", o: ["炎","岩","草","雷"], a: 0, e: "ディシアは炎元素の両手剣キャラクターで、スメールの砂漠で傭兵として生きる「エルマイト旅団」の一人です。傭兵団「熾光の猟獣」に所属し、「熾鬣の獅子」の異名を持ちます。" },
       { q: "アルハイゼンの役職は？", o: ["大賢者","書記官","レンジャー長","学者"], a: 1, e: "アルハイゼンはスメール教令院の「書記官」です。一時期は代理賢者を務めましたが、面倒事を嫌いすぐに元の書記官に戻りました。" },
       { q: "宵宮の職業は？", o: ["料理人","花火職人","鍛冶師","巫女"], a: 1, e: "宵宮（よいみや）は稲妻の「長野原花火店」の店主で、天才花火職人です。夏祭りなどを彩り、子供たちからも大人気のキャラクターです。" },
       { q: "Ver6.xのナド・クライ編で物語の鍵を握り、プレイアブル実装もされたファデュイ執行官第三位は？", o: ["隊長カピターノ","少女コロンビーナ","博士ドットーレ","富者パンタローネ"], a: 1, e: "少女コロンビーナはナド・クライ編「空月の歌」で月の神に関わる重要な役割を果たし、Luna 4（2026年1月）でプレイアブル実装されました。可憐な見た目に反して、執行官の中でも別格の実力と謎を秘めています。" },
@@ -581,7 +571,7 @@ const quizData = {
       { q: "シグウィンの種族は？", o: ["人間","メリュジーヌ","純水精霊","天使"], a: 1, e: "シグウィンはメリュジーヌ族の一員で、メロピデ要塞の看護師長を務めています。他のメリュジーヌとは少し異なる人間寄りな容姿を持っています。" },
     ],
     hard: [
-      { q: "アルベドの「創造」の力の源は何？", o: ["神の目","黒土の力（カーンルイアの錬金術）","天空の琴","仙力"], a: 1, e: "アルベドはカーンルイアの錬金術師「黄金（レインドット）」によって「黒土」から創られたホムンクルス（人造人間）です。ドゥリンとは兄弟のような関係です。" },
+      { q: "アルベドの「創造」の力の源は何？", o: ["神の目","黒土の術（カーンルイアの錬金術）","天空の琴","仙力"], a: 1, e: "アルベドはカーンルイアの錬金術師「黄金」レインドットが「黒土の術」によって創り出したホムンクルス（人造生命）です。「黒土が白亜を産む」と語られ、同じ師から生まれたドゥリンとは兄弟のような関係です。" },
       { q: "雷電将軍の本名（真名）は？", o: ["雷電影","雷電眞","バアルゼブル","バアル"], a: 2, e: "現在の雷神（影）の本名は「バアルゼブル」です。先代雷神である双子の姉（眞）が「バアル」であり、姉の死後にその名と地位を受け継ぎました。" },
       { q: "散兵（放浪者）が最初に名乗った、あるいは呼ばれた名前は？", o: ["国崩","傾奇者","空","雷電悟"], a: 1, e: "彼は雷電将軍が創った人形ですが、名を捨ててたたら砂を彷徨っていた頃は「傾奇者」と呼ばれていました。「国崩」は後に復讐のために自ら名乗った名前です。" },
       { q: "ナヒーダが幽閉されていた場所は？", o: ["ジャングル","教令院の地下","スラサタンナ聖処","砂漠の遺跡"], a: 2, e: "ナヒーダ（クラクサナリデビ）は誕生直後から500年間、教令院の賢者たちによってスメールシティ中央の「スラサタンナ聖処」に幽閉されていました。" },
@@ -641,7 +631,7 @@ const quizData = {
       { q: "原神の舞台となる世界の名前は？", o: ["モンド","テイワット","璃月","セレスティア"], a: 1, e: "テイワットは原神の世界全体の名称です。空に浮かぶ天空島セレスティアの下に7つの国が存在しています。" },
       { q: "原神のメインストーリーの名前は？", o: ["伝説任務","魔神任務","世界任務","依頼任務"], a: 1, e: "メインストーリーは「魔神任務（アーコンクエスト）」と呼ばれ、旅人が生き別れの兄妹を探しながら七国を巡る旅が描かれます。" },
       { q: "七つの国を治める神々のことを何と呼ぶ？", o: ["七天神像","七神","深淵教団","俗世の七執政"], a: 3, e: "七神は正式には「俗世の七執政」と呼ばれます。魔神戦争を勝ち抜き、天空島から七国を統治する権限を与えられた存在です。" },
-      { q: "テイワットの通貨の名称は？", o: ["ゴールド","モラ","ジュエル","コイン"], a: 1, e: "モラは岩神モラクスが自身の血肉（神の力）を用いて作り出した通貨で、テイワット全土の共通通貨であると同時に錬金術の触媒でもあります。" },
+      { q: "テイワットの通貨の名称は？", o: ["ゴールド","モラ","ジュエル","コイン"], a: 1, e: "モラは岩神モラクスが自身の力を込めて鋳造した通貨で、テイワット全土の共通通貨です。キャラや武器の強化から錬金まで、あらゆる場面で消費されます。" },
       { q: "氷の神（氷の女皇）が治める、ファデュイの本拠地でもある国は？", o: ["スネージナヤ","フォンテーヌ","ナタ","カーンルイア"], a: 0, e: "スネージナヤは氷の女皇が治める極寒の国で、ファデュイの本拠地です。なおVer6.0で旅人が訪れたのは辺境の地「ナド・クライ」であり、スネージナヤ本国はその先の物語の舞台とされています。" },
       { q: "モンドの別名は？", o: ["岩の国","風の国","雷の国","水の国"], a: 1, e: "モンドは「風の国」と呼ばれ、風神バルバトスが治める牧歌的で自由な都市です。西風騎士団が治安を守っています。" },
       { q: "「深淵（アビス）」とは何？", o: ["ダンジョンの名前","テイワットに仇なす闇の力・勢力","ボスの名前","武器の種類"], a: 1, e: "深淵（アビス）はテイワットの地下深くから這い寄る闇の力であり、世界を滅ぼそうとする深淵教団や魔物の根源です。" },
@@ -653,7 +643,7 @@ const quizData = {
       { q: "スメールの前・大賢者の名前は？", o: ["アザール","アルハイゼン","サイラス","ティナリ"], a: 0, e: "アザールはスメール教令院の前大賢者で、草神ナヒーダを幽閉し、散兵を新たな神として創り出そうと画策しましたが旅人たちに阻止されました。" },
       { q: "「璃月七星」とは何？", o: ["7人の仙人","璃月を統治する7人の有力な商人","7つの宝石","7つの星座"], a: 1, e: "璃月七星は璃月港の商業・政治を統治する7人の有力者で、天権の凝光や玉衡の刻晴などが名を連ねています。" },
       { q: "フォンテーヌの裁判所（歌劇場）の名前は？", o: ["最高裁判所","エピクレシス歌劇場","正義の殿堂","フォンテーヌ法院"], a: 1, e: "フォンテーヌの「エピクレシス歌劇場」は、裁判そのものが演劇として消費される巨大な歌劇場兼裁判所であり、諭示裁定カーディナルが置かれています。" },
-      { q: "「魔神戦争」とはテイワットの歴史でいつ頃の出来事？", o: ["100年前","500年前","2000年以上前","5000年前"], a: 2, e: "魔神戦争は約2000年以上前にテイワット全土で起こった、七神の座を巡る凄惨な生存競争です。この戦いの勝者が現在の七神となりました。" },
+      { q: "「魔神戦争」とはテイワットの歴史でいつ頃の出来事？", o: ["100年前","500年前","2000年以上前","5000年前"], a: 2, e: "魔神戦争は2000年以上前にテイワット全土で起こった、七神の座を巡る凄惨な生存競争です。この戦いの勝者が現在の七神となりました。" },
       { q: "「ファデュイ（愚人衆）」とは何の組織？", o: ["モンドの騎士団","スネージナヤの外交使節団（実質的な軍事組織）","冒険者組合","商人ギルド"], a: 1, e: "ファデュイはスネージナヤの氷神・氷の女皇の命で動く巨大な組織で、表向きは外交使節団ですが、実態は七国に干渉する強大な軍事・工作組織です。" },
       { q: "「目狩り令」で民衆から奪われたものは？", o: ["武器","元素スキル","神の目","モラ"], a: 2, e: "目狩り令は稲妻で発令された法令で、民衆の「神の目」を強制的に没収し、千手百目神像に嵌め込むというものでした。" },
     ],
@@ -662,14 +652,14 @@ const quizData = {
       { q: "深淵教団の魔物たち（アビスの魔術師など）の正体は？", o: ["ファデュイの離脱者","呪いを受けたカーンルイアの遺民","セレスティアの使者","魔神の眷属"], a: 1, e: "深淵教団の魔物は、500年前に天理の呪いを受け、人間としての姿と理性を失ったカーンルイアの国民の成れの果てです。" },
       { q: "ファデュイ執行官（ファトゥス）の第1位（最強）は？", o: ["隊長カピターノ","博士ドットーレ","少女コロンビーナ","道化ピエロ"], a: 0, e: "執行官の第1位は「隊長」カピターノです。（道化ピエロは番号を持たない「統括官」であり、別格の存在として組織を立ち上げました）。" },
       { q: "フォンテーヌの「原罪」の真相とは？", o: ["フォンテーヌ人は元々純水精霊だった","天理に呪われた民族だった","カーンルイアの末裔だった","機械人形だった"], a: 0, e: "フォンテーヌ人の「原罪」とは、先代水神エゲリアが純水精霊を人間の姿に変化させたことでした。原始胎海の水に触れると元の精霊に溶けて戻ってしまいます。" },
-      { q: "天空島（セレスティア）の「第一降臨者」が行ったことは？", o: ["テイワットに七元素を与えた","古龍を退治し天理の秩序を打ち立てた","魔神を創造した","深淵を封印した"], a: 1, e: "第一降臨者（原初のあの方）はテイワットに訪れ、旧主である七龍（ヴィシャップ）を退けて新たな秩序（天理）を打ち立てた創造主とされています。" },
-      { q: "「神の心」（グノーシス）とは何？", o: ["神の目の上位版","七神が天空島と共鳴する第三の魔力器官","聖遺物の一種","天理との通信装置"], a: 1, e: "神の心は七神が持つ力の結晶であり、第三降臨者の遺骨から創られたと言われています。氷の女皇は天理に反逆するため、全ての神の心を集めています。" },
+      { q: "天空島（セレスティア）の「第一降臨者」が行ったことは？", o: ["テイワットに七元素を与えた","古龍を退治し天理の秩序を打ち立てた","魔神を創造した","深淵を封印した"], a: 1, e: "第一降臨者（原初のあの方）はテイワットに訪れ、旧主である元素の七龍を退けて新たな秩序（天理）を打ち立てた創造主とされています。" },
+      { q: "「神の心」（グノーシス）とは何？", o: ["神の目の上位版","七神が天空島と共鳴するための力の結晶","聖遺物の一種","天理との通信装置"], a: 1, e: "神の心は七神が天空島と共鳴するための力の結晶で、フォンテーヌ編ではヌヴィレットによって「第三降臨者の遺骨から創られたもの」だと明かされました。氷の女皇は天理に反逆するため、全ての神の心を集めています。" },
       { q: "ダインスレイヴの異名は？", o: ["末光の剣（黄昏の剣）","暗夜の英雄","「淵の使徒」","「薪炎の裁判官」"], a: 0, e: "ダインスレイヴは「末光の剣（Twilight Sword）」と呼ばれ、かつてカーンルイアの王室親衛隊長でした。不死の呪いを受けながら、かつての友（旅人の片割れ）を追っています。" },
       { q: "スメール編で明かされた「世界樹」の能力は？", o: ["テイワットのすべての情報と記憶の改変","元素エネルギーの無限供給","七神の力の源","気候の完全制御"], a: 0, e: "世界樹（イルミンスル）はテイワットの過去を含むすべての記憶や情報を管理しています。情報を書き換えることで、人々の記憶や歴史認識を改変することが可能です。" },
     ],
     extreme: [
       { q: "魔神オロバシが天理に罪を問われる原因となった、世界の秘密が記された禁書は？", o: ["『日月前事』","『白夜国地誌』","『淵下宮御史記』","『千風神録』"], a: 0, e: "オロバシは淵下宮（白夜国）を治める中で禁書『日月前事』に触れ、旧世界の歴史や「七王」の存在といった知ってはならない知識を得たため天理に断罪されました。最終的に雷電将軍の一太刀に討たれ、ヤシオリ島にその骨が残っています。" },
-      { q: "「原初のあの方」が創造したとされる「四つの影」のうち、『時』を司る執政の名前は？", o: ["イスタロト","パネース","ロンバダ","ケーリュケイオン"], a: 0, e: "時の執政イスタロトは「四つの影」の一柱で、七神の台頭以前は古代モンドや淵下宮で「千風の神」などとして崇拝されていました。今のテイワットではほぼ忘れ去られています。" },
+      { q: "「原初のあの方」が創造したとされる「四つの影」のうち、『時』を司る執政の名前は？", o: ["イスタロト","パネース","ロノヴァ","ナベリウス"], a: 0, e: "時の執政イスタロトは「四つの影」の一柱で、古代モンドでは風神と共に「千風の神」として祀られ、淵下宮にも多くの伝承が残されています。ほかの影には、カーンルイア人に不死の呪いをかけた死の執政ロノヴァ、「黄金」レインドットに取り込まれた生の執政ナベリウスがいます。" },
       { q: "カーンルイア最後の王、「黒王」とも呼ばれる独眼の王の名前は？", o: ["イルミンズール","アンフォルタス","クロタール・アルベリヒ","フロプタチュール"], a: 0, e: "カーンルイア最後の王は「黒王」イルミンズール（イルミンとも）です。空月の歌では、赤月王朝の没落後に黒日王朝がカーンルイアを支配した歴史や、黒王直属の処刑人「月の狩人」の存在も明かされました。" },
       { q: "カーンルイアの「五大罪人」の一人で、ダインスレイヴの実の兄とされる「予言者」は？", o: ["ヴェズルフェルニル","スルトロッチ","レインドット","アンフォルタス"], a: 0, e: "「予言者」ヴェズルフェルニルは未来視の力を持つダインスレイヴの実兄で、深淵に堕ちた五大罪人の一人です。クロタール・アルベリヒを導き、深淵教団創設のきっかけを作ったとされています。" },
       { q: "ナド・クライ編の核心に関わる「月の三女神」の名前の正しい組み合わせは？", o: ["アリア・ソネット・カノン","アリア・ソナタ・カノン","アリア・ソネット・フーガ","セレナーデ・ソネット・カノン"], a: 0, e: "月の三女神の名前はアリア、ソネット、カノンで、いずれも音楽に由来します。空月の歌第8幕では、三女神がそれぞれの月の祝福をコロンビーナに授ける場面が描かれました。" },
@@ -681,7 +671,7 @@ const quizData = {
     easy: [
       { q: "璃月（リーユエ）港のモチーフとなった国は？", o: ["日本","中国","インド","フランス"], a: 1, e: "璃月は中国をモチーフにした地域で、切り立った岩山や美しい仙境、伝統的な中国風の建築・音楽が特徴的です。" },
       { q: "稲妻（いなずま）のモチーフとなった国は？", o: ["中国","韓国","日本","タイ"], a: 2, e: "稲妻は江戸時代の日本をモチーフにしており、桜、武士、将軍、そして鎖国体制などの和風要素で構成されています。" },
-      { q: "フォンテーヌのモチーフとなった国は？", o: ["イタリア","フランス","イギリス","ドイツ"], a: 1, e: "フォンテーヌは近代フランスやヨーロッパをモチーフにしており、スチームパンク要素やルネサンス期の芸術、裁判文化が取り入れられています。" },
+      { q: "フォンテーヌのモチーフとなった国は？", o: ["イタリア","フランス","イギリス","ドイツ"], a: 1, e: "フォンテーヌは近代フランス（ベル・エポック期）をモチーフにしており、スチームパンク風の機械技術や華やかな芸術、裁判文化が取り入れられています。" },
       { q: "モンドのモチーフとなった地域は？", o: ["北欧","中世ドイツ・ヨーロッパ","古代ギリシャ","現代アメリカ"], a: 1, e: "モンドは中世ドイツを中心にヨーロッパをモチーフにした街並みです。モンド（Mond）はドイツ語で「月」を意味します。" },
       { q: "「ドラゴンスパイン」はどの国にある山？", o: ["璃月","モンド","稲妻","スメール"], a: 1, e: "ドラゴンスパインはモンド南部にある極寒の雪山で、かつて漆黒の魔龍ドゥリンが墜落した場所です。極寒ゲージの管理が必要です。" },
       { q: "璃月の特産品で、崖の側面にしか生えない花は？", o: ["風車アスター","琉璃袋","緋櫻毬","カルパラタ蓮"], a: 1, e: "琉璃袋（るりぶくろ）は璃月の特産品で、切り立った崖の表面に咲くため、採取には過酷な壁登りが要求されることで有名です。" },
@@ -693,7 +683,7 @@ const quizData = {
       { q: "フォンテーヌの海底に存在する巨大な水中監獄の名前は？", o: ["エピクレシス歌劇場","メロピデ要塞","エリナス","ポワソン町"], a: 1, e: "メロピデ要塞はフォンテーヌの水中にある監獄で、公爵リオセスリが管理者です。罪人だけでなく独自のコミュニティや工場を持つ独立した地域です。" },
       { q: "Ver6.6の魔神任務で物語の主な舞台となったのはどの地域？", o: ["モンド","璃月","スメール","フォンテーヌ"], a: 2, e: "Ver6.6（Luna 7）で追加された魔神任務「空月の歌」第9・10幕では、再び「スメール」を舞台に世界樹を巡る物語が展開されました。" },
       { q: "ナタのモチーフとなった文化圏は？", o: ["エジプト","中南米・アステカ・アフリカ","アラビア","インド"], a: 1, e: "ナタは中南米の先住民文化やアステカ、マヤ文明などをモチーフにした炎と戦争の国で、部族単位で文化が分かれています。" },
-      { q: "稲妻の「セイライ島」が激しい雷嵐に見舞われている原因は？", o: ["雷神の怒り","封印された浅瀬神社の猫又","解き放たれた雷鳥の怨念と雷音権現","深淵教団の仕業"], a: 2, e: "セイライ島の雷嵐は、かつて浅瀬響が幕府軍の艦隊を沈めるために雷鳥の怨念の封印を解き放ったことが原因であり、雷音権現が生息しています。" },
+      { q: "稲妻の「セイライ島」に雷を降らせ続けている存在は？", o: ["雷神の怒り","浅瀬神社の猫又","雷鳥の怨念とされる「雷音権現」","深淵教団の結界"], a: 2, e: "セイライ島はかつて厄災に見舞われた島で、雷鳥の怨念が「雷音権現」となって今も島に雷を降らせています。世界任務「セイライ逐雷記」で天雲峠の4つの鎮め石を封じると雷音権現に挑めるようになり、討伐すれば島の雷が収まります。" },
       { q: "稲妻の「鶴観（つるみ）」に立ち込める霧の原因は？", o: ["天候異常","雷鳥カパッチルが残した呪い","深淵教団の結界","自然現象"], a: 1, e: "鶴観の濃霧は、かつて島の民が少年ルーを雷鳥の生贄にしたことに激怒した雷鳥カパッチルが、島を永遠の幻影に閉じ込める呪いをかけたためです。" },
     ],
     hard: [
@@ -727,7 +717,7 @@ const quizData = {
       { q: "聖遺物の「杯」でメインステータスに付く「ダメージバフ」は何種類ある？", o: ["5種類","7種類","8種類","9種類"], a: 2, e: "炎・水・風・雷・草・氷・岩の7元素 ＋ 物理ダメージの計8種類のバフが杯のメインステータスに付きます。狙ったバフを出すのは至難の業です。" },
       { q: "「旧貴族のしつけ」4セットの効果は？", o: ["元素爆発後パーティ全員の攻撃力+20%","元素爆発ダメージ+20%","会心率+12%","元素スキルダメージ+20%"], a: 0, e: "旧貴族4セットは、装備者が元素爆発を使うとパーティ全員の攻撃力が12秒間20%アップする、サポーター向けの定番聖遺物です。" },
       { q: "「護摩の杖」はどのキャラクターのモチーフ（専用）武器として有名？", o: ["鍾離","胡桃","魈","香菱"], a: 1, e: "護摩の杖は胡桃（フータオ）のモチーフ武器で、HP上限を基に攻撃力がアップし、HPが50%未満の時にさらに攻撃力が上がる、彼女の性能に完璧に噛み合った武器です。" },
-      { q: "Ver6.6で実装された新たな聖遺物セットの名前は？", o: ["天界の贈り物","夜魂の残骸","氷結の勇士","星海の巡礼"], a: 0, e: "Ver6.6のアップデートで新聖遺物セット「天界の贈り物」が実装されました。同バージョンで実装されたニコと相性の良いサポート向けセットです。" },
+      { q: "Ver6.6で実装され、ニコとの相性が良いとされる新聖遺物セットは？", o: ["天からの贈り物","黒曜の秘典","長夜の誓約","深廊の終幕"], a: 0, e: "Ver6.6（Luna VII）では新聖遺物「天からの贈り物」と「影に沈む幻」が実装され、モンド北部に新秘境が追加されました。「天からの贈り物」は元素スキルを発動するとチーム全員に元素ダメージバフを配れるサポート向けセットで、同時期に実装されたニコとの相性が良いとされています。" },
     ],
     hard: [
       { q: "入手した直後の星5聖遺物の初期サブステータスの数は？", o: ["必ず3つ","必ず4つ","3つまたは4つ","2つまたは3つ"], a: 2, e: "星5聖遺物は初期サブステータスが3つ（3オプ）または4つ（4オプ）です。初期から4つある方が最大強化回数が1回多くなるため、厳選では重要視されます。" },
@@ -772,219 +762,69 @@ const quizData = {
 // =======================================================================
 //  GAME ENGINE
 // =======================================================================
-let selectedDifficulty = 'easy';
-let selectedGenres = new Set(Object.keys(GENRES));
-let questionCount = 10;
-let questions = [];
-let currentQuestion = 0;
-let score = 0;
-let wrongCount = 0;
-let combo = 0;
-let wrongAnswers = [];
-let answered = false;
-let timerInterval = null;
+const $ = id => document.getElementById(id);
 
-
-const DIFF_KEYS = ['easy', 'normal', 'hard', 'extreme'];
-const TIMER_MAP = { easy: 20, normal: 15, hard: 12, extreme: 20 };
-
-// ── 保存データ（戦績・音量・出題履歴） ──
-const STORAGE_KEY = 'genshin-quiz-save';
-function loadSave() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) { return {}; }
-}
-const saveData = loadSave();
-const volumes = Object.assign({ bgm: 0.4, se: 1.0 }, saveData.volumes);
-function persistSave() {
-  saveData.volumes = volumes;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); } catch (e) {}
-}
-
-// DOM
-const $start   = document.getElementById('start-screen');
-const $quiz    = document.getElementById('quiz-screen');
-const $result  = document.getElementById('result-screen');
-const $startBtn = document.getElementById('start-btn');
-const $nextBtn  = document.getElementById('next-btn');
-const $retryBtn = document.getElementById('retry-btn');
-const $backBtn  = document.getElementById('back-btn');
-const $quitBtn  = document.getElementById('quit-btn');
-
-// ── Particles ──
-(function initParticles() {
-  const c = document.getElementById('particles');
-  for (let i = 0; i < 20; i++) {
-    const p = document.createElement('div');
-    p.classList.add('particle');
-    p.style.left = Math.random() * 100 + '%';
-    p.style.animationDuration = (6 + Math.random() * 10) + 's';
-    p.style.animationDelay = Math.random() * 10 + 's';
-    const s = (2 + Math.random() * 3) + 'px';
-    p.style.width = s; p.style.height = s;
-    c.appendChild(p);
-  }
-})();
-
-// ── Build Genre Chips ──
-(function buildGenreUI() {
-  const grid = document.getElementById('genre-grid');
-  // "All" chip first
-  const allChip = makeChip('all', 'すべて', '');
-  allChip.classList.add('active');
-  grid.appendChild(allChip);
-
-  for (const [key, { label }] of Object.entries(GENRES)) {
-    const cnt = countQuestions(key, 'all');
-    const chip = makeChip(key, label, cnt);
-    chip.classList.add('active');
-    grid.appendChild(chip);
-  }
-
-  function makeChip(key, label, count) {
-    const chip = document.createElement('button');
-    chip.className = 'genre-chip';
-    chip.dataset.genre = key;
-    chip.innerHTML = label +
-      (count !== '' ? `<span class="chip-count">${count}</span>` : '');
-    chip.addEventListener('click', () => toggleGenre(key));
-    return chip;
-  }
-})();
-
-function countQuestions(genre, diff) {
-  const data = quizData[genre];
-  if (!data) return 0;
-  if (diff === 'all') return DIFF_KEYS.reduce((t, d) => t + (data[d]?.length || 0), 0);
-  return data[diff]?.length || 0;
-}
-
-function toggleGenre(key) {
-  const chips = document.querySelectorAll('.genre-chip');
-  const allChip = document.querySelector('.genre-chip[data-genre="all"]');
-
-  if (key === 'all') {
-    const allActive = allChip.classList.contains('active');
-    if (allActive) {
-      // Deselect all
-      chips.forEach(c => c.classList.remove('active'));
-      selectedGenres.clear();
-    } else {
-      // Select all
-      chips.forEach(c => c.classList.add('active'));
-      selectedGenres = new Set(Object.keys(GENRES));
-    }
-  } else {
-    const chip = document.querySelector(`.genre-chip[data-genre="${key}"]`);
-    if (selectedGenres.has(key)) {
-      selectedGenres.delete(key);
-      chip.classList.remove('active');
-      allChip.classList.remove('active');
-    } else {
-      selectedGenres.add(key);
-      chip.classList.add('active');
-      if (selectedGenres.size === Object.keys(GENRES).length) allChip.classList.add('active');
-    }
-  }
-  updatePoolCount();
-}
-
-// ── Difficulty buttons ──
-document.querySelectorAll('.diff-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedDifficulty = btn.dataset.diff;
-    updateExtremeUI();
-    updatePoolCount();
-  });
-});
-
+// ── 定数 ──
+const DIFFS = {
+  easy:    { label: '初級',   timer: 20 },
+  normal:  { label: '中級',   timer: 15 },
+  hard:    { label: '上級',   timer: 12 },
+  extreme: { label: '超上級', timer: 20 },
+};
+const DIFF_KEYS = Object.keys(DIFFS);
+const COUNT_CHOICES = [{ label: '10', value: 10 }, { label: '20', value: 20 }, { label: '全問', value: 9999 }];
+const RECENT_LIMIT = 200; // 出題履歴の保持件数
+const RANKS = [
+  { min: 1,   rank: 'SSS', title: '全知全能の旅人', message: '完璧！テイワットのすべてを知り尽くしています。あなたは真の冒険者です！' },
+  { min: 0.8, rank: 'S',   title: '博識な冒険者',   message: '素晴らしい知識量です！もう少しで完璧ですね。' },
+  { min: 0.6, rank: 'A',   title: '熟練の旅人',     message: '良い結果です！まだまだテイワットには発見が待っています。' },
+  { min: 0.4, rank: 'B',   title: '成長中の冒険者', message: 'もう少し冒険を続ければ、もっと多くのことを知れるでしょう。' },
+  { min: 0,   rank: 'C',   title: '駆け出しの旅人', message: 'まだ旅は始まったばかり。テイワットを探索してもう一度挑戦しましょう！' },
+];
 // 超上級選択時はジャンル選択を注意書きに差し替え、出題数を10問に固定する
 // （全難易度にも超上級問題が混ざるため、そのときはネタバレ注意だけ表示する）
 const WARN_EXTREME = '⚠️ <strong>超上級はめっちゃ難しいから！</strong><br>最新ストーリーの<strong>ネタバレ</strong>を含む問題もあるかもだから！<br>覚悟ができた旅人だけ挑戦してね（全ジャンルから10問出題）';
 const WARN_ALL = '⚠️ <strong>全難易度には超上級の問題も混ざるよ！</strong><br>最新ストーリーの<strong>ネタバレ</strong>を含む問題が出ることがあるから注意してね';
-let preExtremeCount = null;
-function updateExtremeUI() {
-  const isExtreme = selectedDifficulty === 'extreme';
-  const isAll = selectedDifficulty === 'all';
-  document.getElementById('genre-section').style.display = isExtreme ? 'none' : '';
-  document.getElementById('extreme-warning').style.display = (isExtreme || isAll) ? 'block' : 'none';
-  if (isExtreme || isAll) document.getElementById('extreme-warning-box').innerHTML = isExtreme ? WARN_EXTREME : WARN_ALL;
 
-  if (isExtreme) {
-    if (preExtremeCount === null) preExtremeCount = questionCount;
-    questionCount = 10;
-  } else if (preExtremeCount !== null) {
-    questionCount = preExtremeCount;
-    preExtremeCount = null;
-  }
-  document.querySelectorAll('.count-btn').forEach(b => {
-    b.style.display = (isExtreme && b.dataset.value !== '10') ? 'none' : '';
-    b.classList.toggle('active', Number(b.dataset.value) === questionCount);
-  });
+// ── 保存データ（戦績・音量・出題履歴） ──
+const STORAGE_KEY = 'genshin-quiz-save';
+function loadSave() {
+  let data = {};
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) {}
+  return {
+    volumes: Object.assign({ bgm: 0.4, se: 1.0 }, data.volumes),
+    stats: data.stats || {},
+    recentQ: Array.isArray(data.recentQ) ? data.recentQ : [],
+  };
 }
-
-// ── Question count buttons ──
-(function buildCountUI() {
-  const container = document.getElementById('count-options');
-  const countChoices = [
-    { label: '10', value: 10 },
-    { label: '20', value: 20 },
-    { label: '全問', value: 9999 }
-  ];
-  countChoices.forEach(({ label, value }) => {
-    const btn = document.createElement('button');
-    btn.className = 'count-btn' + (value === 10 ? ' active' : '');
-    btn.dataset.value = value;
-    btn.textContent = label;
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      questionCount = value;
-    });
-    container.appendChild(btn);
-  });
-})();
-
-function getPool() {
-  let pool = [];
-  // 超上級はジャンル選択を無視して全ジャンルから出題する
-  const genres = selectedDifficulty === 'extreme' ? Object.keys(GENRES) : selectedGenres;
-  for (const genre of genres) {
-    const data = quizData[genre];
-    if (!data) continue;
-    const diffs = selectedDifficulty === 'all' ? DIFF_KEYS : [selectedDifficulty];
-    for (const d of diffs) {
-      if (data[d]) {
-        pool.push(...data[d].map(q => ({
-          ...q,
-          category: GENRES[genre].label,
-          difficulty: d
-        })));
-      }
-    }
-  }
-  return pool;
+function persistSave() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); } catch (e) {}
 }
+const saveData = loadSave();
+const volumes = saveData.volumes;
 
-function updatePoolCount() {
-  const pool = getPool();
-  document.getElementById('pool-count').textContent = pool.length;
-  $startBtn.disabled = pool.length === 0;
-  renderStatsLine();
-  // Update chip counts
-  document.querySelectorAll('.genre-chip[data-genre]').forEach(chip => {
-    const g = chip.dataset.genre;
-    if (g === 'all') return;
-    const countSpan = chip.querySelector('.chip-count');
-    if (countSpan) countSpan.textContent = countQuestions(g, selectedDifficulty);
-  });
-}
+// ── 状態 ──
+let selectedDifficulty = 'easy';
+let selectedGenres = new Set(Object.keys(GENRES));
+let questionCount = 10;
+let preExtremeCount = null; // 超上級に切り替える前の出題数（他の難易度に戻したとき復元する）
+let questions = [];
+let currentQuestion = 0;
+let score = 0;
+let combo = 0;
+let wrongAnswers = [];
+let answered = false;
 
-updateExtremeUI();
-updatePoolCount();
+// ── DOM ──
+const $start = $('start-screen'), $quiz = $('quiz-screen'), $result = $('result-screen');
+const $startBtn = $('start-btn'), $nextBtn = $('next-btn');
+const $card = $('question-card'), $options = $('options-container'), $explanation = $('explanation');
+const $timerFill = $('timer-fill'), $progress = $('progress-fill'), $comboBadge = $('combo-badge');
+const $settingsOverlay = $('settings-overlay'), $bgmVol = $('bgm-vol'), $seVol = $('se-vol');
+const genreChips = {}; // ジャンルキー（'all' 含む）→ チップ要素
+const countBtns = [];  // { btn, value }
 
-// ── Shuffle ──
+// ── 汎用 ──
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -994,203 +834,18 @@ function shuffle(arr) {
   return a;
 }
 
-// ── START / タイトルへ戻る ──
-[$startBtn, $retryBtn].forEach(btn =>
-  btn.addEventListener('click', () => { playClickSound(); startGame(); })
-);
-
-function returnToTitle() {
-  playClickSound();
-  clearInterval(timerInterval);
-  $quiz.style.display = 'none';
-  $result.style.display = 'none';
-  $start.style.display = 'block';
-  $start.style.animation = 'none';
-  $start.offsetHeight;
-  $start.style.animation = 'fadeInUp 0.5s ease-out';
-  bgmEngine.setScene('title');
-}
-$backBtn.addEventListener('click', returnToTitle);
-$quitBtn.addEventListener('click', returnToTitle);
-
-function startGame() {
-  const pool = getPool();
-  const count = Math.min(questionCount, pool.length);
-  if (count === 0) return;
-
-  // 未出題の問題を優先しつつ（直近の出題履歴を参照）、各グループ内の順序はランダムを保つ
-  const recent = saveData.recentQ || [];
-  const fresh = [], seen = [];
-  for (const q of shuffle(pool)) (recent.includes(q.q) ? seen : fresh).push(q);
-  questions = fresh.concat(seen)
-    .slice(0, count)
-    .map(q => {
-      const order = shuffle([0, 1, 2, 3]);
-      return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
-    });
-  currentQuestion = 0;
-  score = 0;
-  wrongCount = 0;
-  combo = 0;
-  wrongAnswers = [];
-  document.getElementById('combo-badge').className = 'combo-badge';
-  document.getElementById('q-total').textContent = questions.length;
-
-  $start.style.display = 'none';
-  $quiz.style.display = 'block';
-  $result.style.display = 'none';
-  bgmEngine.setScene('quiz');
-
-  showQuestion();
+// 表示中の要素でCSSアニメーションを最初から再生し直す
+function replayAnimation(el, animation) {
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = animation;
 }
 
-// ── SHOW QUESTION ──
-function showQuestion() {
-  answered = false;
-  const q = questions[currentQuestion];
-
-  // 出題履歴に記録（実際に表示した問題のみ・上限200件）
-  const rec = (saveData.recentQ || []).filter(k => k !== q.q);
-  rec.push(q.q);
-  saveData.recentQ = rec.slice(-200);
-  persistSave();
-
-  document.getElementById('q-current').textContent = currentQuestion + 1;
-  document.getElementById('q-category').textContent = q.category;
-  document.getElementById('q-text').textContent = q.q;
-  document.getElementById('progress-fill').style.width = ((currentQuestion) / questions.length * 100) + '%';
-  document.getElementById('tally-correct').textContent = score;
-  document.getElementById('tally-wrong').textContent = wrongCount;
-
-  // Difficulty badge
-  const badge = document.getElementById('q-diff-badge');
-  const diffLabels = { easy: '初級', normal: '中級', hard: '上級', extreme: '超上級' };
-  badge.textContent = diffLabels[q.difficulty] || '';
-  badge.className = 'question-difficulty-badge badge-' + q.difficulty;
-
-  document.getElementById('explanation').style.display = 'none';
-  $nextBtn.style.display = 'none';
-
-  const card = document.getElementById('question-card');
-  card.style.animation = 'none';
-  card.offsetHeight;
-  card.style.animation = 'fadeInUp 0.5s ease-out';
-
-  const container = document.getElementById('options-container');
-  container.innerHTML = '';
-  const labels = ['A', 'B', 'C', 'D'];
-
-  q.o.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-label">${labels[i]}</span><span class="option-text">${opt}</span>`;
-    btn.style.animation = `fadeInUp ${0.3 + i * 0.08}s ease-out`;
-    btn.addEventListener('click', () => selectAnswer(i, btn));
-    container.appendChild(btn);
-  });
-
-  // 全難易度モードでは問題ごとの難易度に応じた制限時間を使う
-  startTimer(TIMER_MAP[selectedDifficulty === 'all' ? q.difficulty : selectedDifficulty] || 15);
+function showScreen(screen) {
+  [$start, $quiz, $result].forEach(s => { s.style.display = s === screen ? 'block' : 'none'; });
 }
 
-// ── TIMER（実時間ベース。バックグラウンドでのタイマー間引きの影響を受けない） ──
-let timerDuration = 0;
-let timerDeadline = 0;
-let timerPausedRemaining = null;
-
-function startTimer(duration) {
-  timerDuration = duration;
-  timerPausedRemaining = null;
-  const timerFill = document.getElementById('timer-fill');
-  timerFill.style.width = '100%';
-  timerFill.classList.remove('warning');
-  runTimer(duration * 1000);
-}
-
-function runTimer(remainingMs) {
-  clearInterval(timerInterval);
-  timerDeadline = performance.now() + remainingMs;
-  const timerFill = document.getElementById('timer-fill');
-  timerInterval = setInterval(() => {
-    const remaining = timerDeadline - performance.now();
-    timerFill.style.width = Math.max(0, remaining / (timerDuration * 1000) * 100) + '%';
-    if (remaining <= timerDuration * 300) timerFill.classList.add('warning');
-    if (remaining <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
-  }, 50);
-}
-
-// 設定パネルを開いている間は制限時間を一時停止する
-function pauseTimerForSettings() {
-  if ($quiz.style.display === 'block' && !answered && timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-    timerPausedRemaining = Math.max(0, timerDeadline - performance.now());
-  }
-}
-function resumeTimerFromSettings() {
-  if (timerPausedRemaining !== null && $quiz.style.display === 'block' && !answered) {
-    runTimer(timerPausedRemaining);
-  }
-  timerPausedRemaining = null;
-}
-
-function timeUp() {
-  revealAnswer(null);
-}
-
-// 回答確定の共通処理（selectedIndex: 選択した選択肢の番号 / null = 時間切れ）
-function revealAnswer(selectedIndex) {
-  answered = true;
-  clearInterval(timerInterval);
-  const q = questions[currentQuestion];
-  document.querySelectorAll('.option-btn').forEach((b, i) => {
-    b.classList.add('disabled');
-    if (i === q.a) b.classList.add('correct');
-  });
-
-  if (selectedIndex === q.a) {
-    score++;
-    combo++;
-    document.getElementById('tally-correct').textContent = score;
-    playCorrectSound();
-    flashScreen('correct-flash');
-  } else {
-    wrongCount++;
-    combo = 0;
-    wrongAnswers.push({
-      n: currentQuestion + 1,
-      q: q.q,
-      correct: q.o[q.a],
-      chosen: selectedIndex === null ? '時間切れ' : q.o[selectedIndex],
-      e: q.e,
-    });
-    document.getElementById('tally-wrong').textContent = wrongCount;
-    playWrongSound();
-    flashScreen('wrong-flash');
-    const card = document.getElementById('question-card');
-    card.classList.add('shake');
-    setTimeout(() => card.classList.remove('shake'), 500);
-  }
-
-  const comboBadge = document.getElementById('combo-badge');
-  if (combo >= 2) {
-    comboBadge.textContent = '🔥 ' + combo + ' COMBO';
-    comboBadge.className = 'combo-badge';
-    comboBadge.offsetHeight;
-    comboBadge.className = 'combo-badge show';
-  } else {
-    comboBadge.className = 'combo-badge';
-  }
-
-  document.getElementById('progress-fill').style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
-
-  showExplanation(q.e);
-  $nextBtn.style.display = 'block';
-  $nextBtn.textContent = currentQuestion < questions.length - 1 ? '次の問題 →' : '結果を見る →';
-  $nextBtn.style.animation = 'fadeInUp 0.4s ease-out';
-}
-
-// ── SOUND SYSTEM (Web Audio API) ──
+// ── サウンド（Web Audio API） ──
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 function getAudioCtx() {
@@ -1198,72 +853,40 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-function playCorrectSound() {
-  if (volumes.se <= 0) return;
+// 1音を鳴らす。freqEnd で周波数をスライド、attack でフェードイン、
+// linear で減衰を直線に（省略時は指数減衰）、dest 省略でスピーカー直結
+function playTone({ type = 'sine', freq, freqEnd, at, dur, gain, attack = 0, linear = false, dest }) {
   const ctx = getAudioCtx();
-  const now = ctx.currentTime;
-  const notes = [523.25, 659.25, 783.99];
-  if (combo >= 5) notes.push(1318.51); // 5コンボ以上でキラッと一音追加
-  notes.forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.18 * volumes.se, now + i * 0.1);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(now + i * 0.1);
-    osc.stop(now + i * 0.1 + 0.4);
-  });
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, at);
+  if (freqEnd) osc.frequency.linearRampToValueAtTime(freqEnd, at + dur);
+  if (attack) {
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(gain, at + attack);
+  } else {
+    g.gain.setValueAtTime(gain, at);
+  }
+  g.gain[linear ? 'linearRampToValueAtTime' : 'exponentialRampToValueAtTime'](0.0001, at + dur);
+  osc.connect(g).connect(dest || ctx.destination);
+  osc.start(at);
+  osc.stop(at + dur);
 }
 
-function playWrongSound() {
+// 効果音: 音量設定を反映し、複数音を spacing 秒間隔で鳴らす
+function playSE(notes, spacing = 0) {
   if (volumes.se <= 0) return;
-  const ctx = getAudioCtx();
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'square';
-  osc.frequency.setValueAtTime(200, now);
-  osc.frequency.linearRampToValueAtTime(120, now + 0.35);
-  gain.gain.setValueAtTime(0.15 * volumes.se, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(now);
-  osc.stop(now + 0.4);
+  const now = getAudioCtx().currentTime;
+  notes.forEach((n, i) => playTone({ ...n, at: now + i * spacing, gain: n.gain * volumes.se }));
 }
-
-function playClickSound() {
-  if (volumes.se <= 0) return;
-  const ctx = getAudioCtx();
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.value = 880;
-  gain.gain.setValueAtTime(0.08 * volumes.se, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(now);
-  osc.stop(now + 0.08);
-}
-
-function playFanfare() {
-  if (volumes.se <= 0) return;
-  const ctx = getAudioCtx();
-  const now = ctx.currentTime;
-  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.15 * volumes.se, now + i * 0.15);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.6);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(now + i * 0.15);
-    osc.stop(now + i * 0.15 + 0.6);
-  });
-}
+const SE = {
+  correct: () => playSE(
+    [523.25, 659.25, 783.99].concat(combo >= 5 ? [1318.51] : []) // 5コンボ以上でキラッと一音追加
+      .map(freq => ({ freq, dur: 0.4, gain: 0.18 })), 0.1),
+  wrong:   () => playSE([{ type: 'square', freq: 200, freqEnd: 120, dur: 0.4, gain: 0.15 }]),
+  click:   () => playSE([{ freq: 880, dur: 0.08, gain: 0.08 }]),
+  fanfare: () => playSE([523.25, 659.25, 783.99, 1046.5].map(freq => ({ freq, dur: 0.6, gain: 0.15 })), 0.15),
+};
 
 // ── BGM（Web Audioによる自動生成・原神風アンビエント） ──
 const bgmEngine = {
@@ -1282,32 +905,23 @@ const bgmEngine = {
     result: { bpm: 72, density: 0.65, high: 1 },
   },
   setScene(scene) { this.scene = scene; this.ensure(); },
+  // 音量設定に合わせて再生・停止・音量を揃える（AudioContextは初回のユーザー操作後に生成される）
   ensure() {
-    if (volumes.bgm <= 0) { this.stop(); return; }
-    if (this.timer || !audioCtx) return; // AudioContextは初回のユーザー操作後に生成される
-    this.startLoop();
-  },
-  startLoop() {
-    const ctx = getAudioCtx();
-    if (!this.gainNode) { this.gainNode = ctx.createGain(); this.gainNode.connect(ctx.destination); }
+    if (volumes.bgm <= 0 || !audioCtx) { this.stop(); return; }
+    if (!this.gainNode) { this.gainNode = audioCtx.createGain(); this.gainNode.connect(audioCtx.destination); }
     this.gainNode.gain.value = volumes.bgm * 0.5;
-    this.nextNoteTime = ctx.currentTime + 0.1;
+    if (this.timer) return;
+    this.nextNoteTime = audioCtx.currentTime + 0.1;
     this.step = 0;
     this.timer = setInterval(() => this.schedule(), 120);
   },
-  stop() { if (this.timer) { clearInterval(this.timer); this.timer = null; } },
-  setVolume() {
-    if (this.gainNode) this.gainNode.gain.value = volumes.bgm * 0.5;
-    if (volumes.bgm <= 0) this.stop();
-    else if (!this.timer && audioCtx) this.startLoop();
-  },
+  stop() { clearInterval(this.timer); this.timer = null; },
   schedule() {
-    const ctx = getAudioCtx();
     const cfg = this.CFG[this.scene] || this.CFG.title;
     const beat = 60 / cfg.bpm / 2; // 8分音符
     // バックグラウンドでタイマーが間引かれた後は、過去分を演奏せず現在時刻まで進める
-    if (this.nextNoteTime < ctx.currentTime - 0.05) this.nextNoteTime = ctx.currentTime + 0.05;
-    while (this.nextNoteTime < ctx.currentTime + 0.35) {
+    if (this.nextNoteTime < audioCtx.currentTime - 0.05) this.nextNoteTime = audioCtx.currentTime + 0.05;
+    while (this.nextNoteTime < audioCtx.currentTime + 0.35) {
       const bar = Math.floor(this.step / 8) % this.CHORDS.length;
       if (this.step % 8 === 0) this.pad(this.CHORDS[bar], this.nextNoteTime, beat * 8);
       if (Math.random() < cfg.density) {
@@ -1320,111 +934,383 @@ const bgmEngine = {
     }
   },
   pad(freqs, t, dur) {
-    const ctx = getAudioCtx();
-    freqs.forEach(f => {
-      const osc = ctx.createOscillator(), g = ctx.createGain();
-      osc.type = 'sine'; osc.frequency.value = f;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.05, t + dur * 0.3);
-      g.gain.linearRampToValueAtTime(0.0001, t + dur);
-      osc.connect(g).connect(this.gainNode);
-      osc.start(t); osc.stop(t + dur);
-    });
+    freqs.forEach(freq => playTone({ freq, at: t, dur, gain: 0.05, attack: dur * 0.3, linear: true, dest: this.gainNode }));
   },
-  pluck(f, t) {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator(), g = ctx.createGain();
-    osc.type = 'triangle'; osc.frequency.value = f;
-    g.gain.setValueAtTime(0.07, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
-    osc.connect(g).connect(this.gainNode);
-    osc.start(t); osc.stop(t + 0.6);
+  pluck(freq, t) {
+    playTone({ type: 'triangle', freq, at: t, dur: 0.6, gain: 0.07, dest: this.gainNode });
   },
 };
 
-// ── SCREEN FLASH ──
+// ── 演出（画面フラッシュ・紙吹雪） ──
 let flashTimeout = null;
 function flashScreen(type) {
-  const el = document.getElementById('screen-flash');
+  const el = $('screen-flash');
   clearTimeout(flashTimeout);
   el.className = 'screen-flash ' + type;
   flashTimeout = setTimeout(() => { el.className = 'screen-flash'; }, 350);
 }
 
-// ── SELECT ANSWER ──
-function selectAnswer(index, btn) {
-  if (answered) return;
-  if (index === questions[currentQuestion].a) spawnMiniConfetti(btn);
-  else btn.classList.add('wrong');
-  revealAnswer(index);
+// 紙吹雪。origin を渡すとその要素の位置から小さく散らし、省略時は画面上部から降らせる
+function spawnConfetti({ count, colors, size, duration, life, origin }) {
+  const c = document.createElement('div');
+  c.className = 'confetti-container';
+  document.body.appendChild(c);
+  const rect = origin && origin.getBoundingClientRect();
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti';
+    if (rect) {
+      p.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 100) + 'px';
+      p.style.top = rect.top + 'px';
+      p.style.borderRadius = '50%';
+    } else {
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDelay = Math.random() * 1.5 + 's';
+      p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    }
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (duration[0] + Math.random() * duration[1]) + 's';
+    const s = (size[0] + Math.random() * size[1]) + 'px';
+    p.style.width = s; p.style.height = s;
+    c.appendChild(p);
+  }
+  setTimeout(() => c.remove(), life);
+}
+const confettiRain = () => spawnConfetti({
+  count: 100, colors: ['#e2b44d', '#f5d88e', '#74c2a8', '#b08fc2', '#ef7938', '#4cc2f1', '#f87171', '#4ade80'],
+  size: [4, 8], duration: [2, 3], life: 7000,
+});
+const confettiBurst = origin => spawnConfetti({
+  count: 12, colors: ['#4ade80', '#e2b44d', '#f5d88e'], size: [3, 5], duration: [1, 1.5], life: 3000, origin,
+});
+
+function initParticles() {
+  const c = $('particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (6 + Math.random() * 10) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    const s = (2 + Math.random() * 3) + 'px';
+    p.style.width = s; p.style.height = s;
+    c.appendChild(p);
+  }
 }
 
-function showExplanation(text) {
-  const exp = document.getElementById('explanation');
-  document.getElementById('exp-text').textContent = text;
-  exp.style.display = 'block';
+// ── スタート画面（難易度・ジャンル・出題数） ──
+function buildDifficultyUI() {
+  const container = $('difficulty-options');
+  const entries = DIFF_KEYS.map(k => [k, DIFFS[k].label]).concat([['all', '全難易度']]);
+  entries.forEach(([key, label]) => {
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn' + (key === selectedDifficulty ? ' active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      selectedDifficulty = key;
+      container.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b === btn));
+      updateExtremeUI();
+      updatePoolCount();
+    });
+    container.appendChild(btn);
+  });
 }
 
-// ── NEXT ──
-$nextBtn.addEventListener('click', () => {
-  playClickSound();
+function buildGenreUI() {
+  const grid = $('genre-grid');
+  const makeChip = (key, label, count) => {
+    const chip = document.createElement('button');
+    chip.className = 'genre-chip active';
+    chip.innerHTML = label + (count === undefined ? '' : `<span class="chip-count">${count}</span>`);
+    chip.addEventListener('click', () => toggleGenre(key));
+    genreChips[key] = chip;
+    grid.appendChild(chip);
+  };
+  makeChip('all', 'すべて');
+  for (const [key, { label }] of Object.entries(GENRES)) makeChip(key, label, countQuestions(key, 'all'));
+}
+
+function buildCountUI() {
+  const container = $('count-options');
+  COUNT_CHOICES.forEach(({ label, value }) => {
+    const btn = document.createElement('button');
+    btn.className = 'count-btn';
+    btn.textContent = label;
+    btn.addEventListener('click', () => { questionCount = value; updateCountButtons(); });
+    countBtns.push({ btn, value });
+    container.appendChild(btn);
+  });
+}
+
+// 出題数ボタンの選択状態を反映（超上級では10問以外を隠す）
+function updateCountButtons() {
+  const isExtreme = selectedDifficulty === 'extreme';
+  countBtns.forEach(({ btn, value }) => {
+    btn.style.display = isExtreme && value !== 10 ? 'none' : '';
+    btn.classList.toggle('active', value === questionCount);
+  });
+}
+
+function countQuestions(genre, diff) {
+  return (diff === 'all' ? DIFF_KEYS : [diff]).reduce((t, d) => t + (quizData[genre][d]?.length || 0), 0);
+}
+
+function toggleGenre(key) {
+  if (key === 'all') {
+    const selectAll = !genreChips.all.classList.contains('active');
+    selectedGenres = new Set(selectAll ? Object.keys(GENRES) : []);
+  } else if (selectedGenres.has(key)) {
+    selectedGenres.delete(key);
+  } else {
+    selectedGenres.add(key);
+  }
+  const allSelected = selectedGenres.size === Object.keys(GENRES).length;
+  for (const [k, chip] of Object.entries(genreChips)) {
+    chip.classList.toggle('active', k === 'all' ? allSelected : selectedGenres.has(k));
+  }
+  updatePoolCount();
+}
+
+function updateExtremeUI() {
+  const isExtreme = selectedDifficulty === 'extreme';
+  const isAll = selectedDifficulty === 'all';
+  $('genre-section').style.display = isExtreme ? 'none' : '';
+  $('extreme-warning').style.display = isExtreme || isAll ? 'block' : 'none';
+  $('extreme-warning-box').innerHTML = isExtreme ? WARN_EXTREME : WARN_ALL;
+
+  if (isExtreme) {
+    if (preExtremeCount === null) preExtremeCount = questionCount;
+    questionCount = 10;
+  } else if (preExtremeCount !== null) {
+    questionCount = preExtremeCount;
+    preExtremeCount = null;
+  }
+  updateCountButtons();
+}
+
+function getPool() {
+  const pool = [];
+  // 超上級はジャンル選択を無視して全ジャンルから出題する
+  const genres = selectedDifficulty === 'extreme' ? Object.keys(GENRES) : selectedGenres;
+  const diffs = selectedDifficulty === 'all' ? DIFF_KEYS : [selectedDifficulty];
+  for (const genre of genres) {
+    for (const d of diffs) {
+      (quizData[genre][d] || []).forEach(q => pool.push({ ...q, category: GENRES[genre].label, difficulty: d }));
+    }
+  }
+  return pool;
+}
+
+function updatePoolCount() {
+  const pool = getPool();
+  $('pool-count').textContent = pool.length;
+  $startBtn.disabled = pool.length === 0;
+  renderStatsLine();
+  for (const key of Object.keys(GENRES)) {
+    genreChips[key].querySelector('.chip-count').textContent = countQuestions(key, selectedDifficulty);
+  }
+}
+
+function renderStatsLine() {
+  const el = $('stats-line');
+  const st = saveData.stats[selectedDifficulty];
+  if (!st || !st.plays) { el.textContent = ''; return; }
+  const pct = Math.round(st.correct / st.answered * 100);
+  el.innerHTML = '自己ベスト <span>' + st.best.score + '/' + st.best.total + '</span> ｜ プレイ <span>' + st.plays + '</span>回 ｜ 累計正答率 <span>' + pct + '%</span>';
+}
+
+// ── 制限時間（実時間ベース。バックグラウンドでのタイマー間引きの影響を受けない） ──
+const timer = {
+  id: null, duration: 0, deadline: 0, paused: null,
+  start(seconds) {
+    this.duration = seconds * 1000;
+    $timerFill.classList.remove('warning');
+    this.run(this.duration);
+  },
+  run(remainingMs) {
+    this.stop();
+    this.deadline = performance.now() + remainingMs;
+    this.id = setInterval(() => this.tick(), 50);
+    this.tick();
+  },
+  tick() {
+    const remaining = this.deadline - performance.now();
+    $timerFill.style.width = Math.max(0, remaining / this.duration * 100) + '%';
+    if (remaining <= this.duration * 0.3) $timerFill.classList.add('warning');
+    if (remaining <= 0) {
+      this.stop();
+      if (!answered) revealAnswer(null);
+    }
+  },
+  stop() {
+    clearInterval(this.id);
+    this.id = null;
+    this.paused = null;
+  },
+  // 設定パネルを開いている間の一時停止・再開
+  pause() {
+    if (!this.id) return;
+    const remaining = Math.max(0, this.deadline - performance.now());
+    this.stop();
+    this.paused = remaining;
+  },
+  resume() {
+    if (this.paused !== null) this.run(this.paused);
+  },
+};
+
+// ── ゲーム進行 ──
+function startGame() {
+  const pool = getPool();
+  const count = Math.min(questionCount, pool.length);
+  if (count === 0) return;
+
+  // 未出題の問題を優先しつつ（直近の出題履歴を参照）、各グループ内の順序はランダムを保つ
+  const fresh = [], seen = [];
+  for (const q of shuffle(pool)) (saveData.recentQ.includes(q.q) ? seen : fresh).push(q);
+  // 選択肢は毎回シャッフルし、正解番号を付け替える
+  questions = fresh.concat(seen).slice(0, count).map(q => {
+    const order = shuffle([0, 1, 2, 3]);
+    return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
+  });
+  currentQuestion = 0;
+  score = 0;
+  combo = 0;
+  wrongAnswers = [];
+  renderTally();
+  $comboBadge.classList.remove('show');
+  $('q-total').textContent = questions.length;
+
+  showScreen($quiz);
+  bgmEngine.setScene('quiz');
+  showQuestion();
+}
+
+function returnToTitle() {
+  SE.click();
+  timer.stop();
+  showScreen($start);
+  bgmEngine.setScene('title');
+}
+
+function renderTally() {
+  $('tally-correct').textContent = score;
+  $('tally-wrong').textContent = wrongAnswers.length;
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[currentQuestion];
+
+  // 出題履歴に記録（実際に表示した問題のみ）
+  saveData.recentQ = saveData.recentQ.filter(k => k !== q.q).concat(q.q).slice(-RECENT_LIMIT);
+  persistSave();
+
+  $('q-current').textContent = currentQuestion + 1;
+  $('q-category').textContent = q.category;
+  $('q-text').textContent = q.q;
+  $progress.style.width = (currentQuestion / questions.length * 100) + '%';
+  const badge = $('q-diff-badge');
+  badge.textContent = DIFFS[q.difficulty].label;
+  badge.className = 'question-difficulty-badge badge-' + q.difficulty;
+  $explanation.style.display = 'none';
+  $nextBtn.style.display = 'none';
+  replayAnimation($card, 'fadeInUp 0.5s ease-out');
+
+  $options.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-label">${'ABCD'[i]}</span><span class="option-text">${opt}</span>`;
+    btn.style.animation = `fadeInUp ${0.3 + i * 0.08}s ease-out`;
+    btn.addEventListener('click', () => { if (!answered) revealAnswer(i); });
+    $options.appendChild(btn);
+  });
+
+  timer.start(DIFFS[q.difficulty].timer);
+}
+
+// 回答確定の共通処理（selectedIndex: 選択した選択肢の番号 / null = 時間切れ）
+function revealAnswer(selectedIndex) {
+  answered = true;
+  timer.stop();
+  const q = questions[currentQuestion];
+  const buttons = $options.querySelectorAll('.option-btn');
+  buttons.forEach((b, i) => {
+    b.classList.add('disabled');
+    if (i === q.a) b.classList.add('correct');
+  });
+
+  if (selectedIndex === q.a) {
+    score++;
+    combo++;
+    confettiBurst(buttons[selectedIndex]);
+    SE.correct();
+    flashScreen('correct-flash');
+  } else {
+    combo = 0;
+    if (selectedIndex !== null) buttons[selectedIndex].classList.add('wrong');
+    wrongAnswers.push({
+      n: currentQuestion + 1,
+      q: q.q,
+      correct: q.o[q.a],
+      chosen: selectedIndex === null ? '時間切れ' : q.o[selectedIndex],
+      e: q.e,
+    });
+    SE.wrong();
+    flashScreen('wrong-flash');
+    replayAnimation($card, 'shake 0.5s ease-in-out');
+  }
+  renderTally();
+
+  $comboBadge.classList.remove('show');
+  if (combo >= 2) {
+    $comboBadge.textContent = '🔥 ' + combo + ' COMBO';
+    $comboBadge.offsetHeight;
+    $comboBadge.classList.add('show');
+  }
+
+  $progress.style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+  $('exp-text').textContent = q.e;
+  $explanation.style.display = 'block';
+  $nextBtn.style.display = 'block';
+  $nextBtn.textContent = currentQuestion < questions.length - 1 ? '次の問題 →' : '結果を見る →';
+}
+
+function nextQuestion() {
+  SE.click();
   currentQuestion++;
   if (currentQuestion < questions.length) showQuestion();
   else showResult();
-});
+}
 
-// ── RESULT ──
 function showResult() {
-  clearInterval(timerInterval);
-  $quiz.style.display = 'none';
-  $result.style.display = 'block';
-  $result.style.animation = 'fadeInUp 0.8s ease-out';
-
+  showScreen($result);
   const total = questions.length;
   const pct = score / total;
 
-  document.getElementById('result-score').textContent = score;
-  document.getElementById('result-total').textContent = total;
-  document.getElementById('stat-correct').textContent = score;
-  document.getElementById('stat-wrong').textContent = wrongCount;
+  $('result-score').textContent = score;
+  $('result-total').textContent = total;
+  $('stat-correct').textContent = score;
+  $('stat-wrong').textContent = wrongAnswers.length;
 
-  // Reset circle then animate
-  const circle = document.getElementById('circle-fill');
+  // 円グラフをリセットしてからアニメーション
+  const circle = $('circle-fill');
   const circumference = 2 * Math.PI * 70;
   circle.style.transition = 'none';
   circle.style.strokeDashoffset = circumference;
   circle.getBoundingClientRect(); // SVG要素にoffsetHeightはないため、リフローはこちらで発生させる
-  circle.style.transition = 'stroke-dashoffset 1.5s ease-out';
-  setTimeout(() => { circle.style.strokeDashoffset = circumference - (pct * circumference); }, 100);
+  circle.style.transition = '';
+  setTimeout(() => { circle.style.strokeDashoffset = circumference * (1 - pct); }, 100);
 
-  let rank, title, message;
-  if (pct === 1) {
-    rank = 'SSS'; title = '全知全能の旅人';
-    message = '完璧！テイワットのすべてを知り尽くしています。あなたは真の冒険者です！';
-    spawnConfetti(); playFanfare();
-  } else if (pct >= 0.8) {
-    rank = 'S'; title = '博識な冒険者';
-    message = '素晴らしい知識量です！もう少しで完璧ですね。';
-    spawnConfetti(); playFanfare();
-  } else if (pct >= 0.6) {
-    rank = 'A'; title = '熟練の旅人';
-    message = '良い結果です！まだまだテイワットには発見が待っています。';
-  } else if (pct >= 0.4) {
-    rank = 'B'; title = '成長中の冒険者';
-    message = 'もう少し冒険を続ければ、もっと多くのことを知れるでしょう。';
-  } else {
-    rank = 'C'; title = '駆け出しの旅人';
-    message = 'まだ旅は始まったばかり。テイワットを探索してもう一度挑戦しましょう！';
-  }
-
-  document.getElementById('result-rank').textContent = rank;
-  document.getElementById('result-title').textContent = title;
-  document.getElementById('result-message').textContent = message;
-
+  const { rank, title, message } = RANKS.find(r => pct >= r.min);
+  $('result-rank').textContent = rank;
+  $('result-title').textContent = title;
+  $('result-message').textContent = message;
+  if (pct >= 0.8) { confettiRain(); SE.fanfare(); }
   bgmEngine.setScene('result');
 
   // 戦績の更新（難易度別）
-  saveData.stats = saveData.stats || {};
   const st = saveData.stats[selectedDifficulty] || { best: null, plays: 0, correct: 0, answered: 0 };
   st.plays++;
   st.correct += score;
@@ -1437,113 +1323,55 @@ function showResult() {
   saveData.stats[selectedDifficulty] = st;
   persistSave();
   renderStatsLine();
-  document.getElementById('new-record').style.display = newRecord ? 'block' : 'none';
+  $('new-record').style.display = newRecord ? 'block' : 'none';
 
   // 間違えた問題の復習リスト
-  const review = document.getElementById('review-section');
-  if (wrongAnswers.length) {
-    review.style.display = 'block';
-    review.innerHTML = '<p class="review-title">間違えた問題をおさらい</p>' + wrongAnswers.map(w =>
-      '<div class="review-item">' +
-        '<p class="rv-q"><span class="rv-num">Q.' + w.n + '</span>' + w.q + '</p>' +
-        '<p class="rv-a"><span class="rv-correct">正解: ' + w.correct + '</span><span class="rv-chosen">あなた: ' + w.chosen + '</span></p>' +
-        '<p class="rv-e">' + w.e + '</p>' +
-      '</div>').join('');
-  } else {
-    review.style.display = 'none';
-  }
+  const review = $('review-section');
+  review.style.display = wrongAnswers.length ? 'block' : 'none';
+  review.innerHTML = '<p class="review-title">間違えた問題をおさらい</p>' + wrongAnswers.map(w =>
+    '<div class="review-item">' +
+      '<p class="rv-q"><span class="rv-num">Q.' + w.n + '</span>' + w.q + '</p>' +
+      '<p class="rv-a"><span class="rv-correct">正解: ' + w.correct + '</span><span class="rv-chosen">あなた: ' + w.chosen + '</span></p>' +
+      '<p class="rv-e">' + w.e + '</p>' +
+    '</div>').join('');
 }
-
-function renderStatsLine() {
-  const el = document.getElementById('stats-line');
-  const st = saveData.stats && saveData.stats[selectedDifficulty];
-  if (!st || !st.plays) { el.textContent = ''; return; }
-  const pct = Math.round(st.correct / st.answered * 100);
-  el.innerHTML = '自己ベスト <span>' + st.best.score + '/' + st.best.total + '</span> ｜ プレイ <span>' + st.plays + '</span>回 ｜ 累計正答率 <span>' + pct + '%</span>';
-}
-
-// ── CONFETTI ──
-function spawnConfetti() {
-  const c = document.createElement('div');
-  c.className = 'confetti-container';
-  document.body.appendChild(c);
-  const colors = ['#e2b44d','#f5d88e','#74c2a8','#b08fc2','#ef7938','#4cc2f1','#f87171','#4ade80'];
-  for (let i = 0; i < 100; i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti';
-    p.style.left = Math.random()*100+'%';
-    p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.animationDuration = (2+Math.random()*3)+'s';
-    p.style.animationDelay = Math.random()*1.5+'s';
-    const s = (4+Math.random()*8)+'px'; p.style.width = s; p.style.height = s;
-    p.style.borderRadius = Math.random()>0.5?'50%':'2px';
-    c.appendChild(p);
-  }
-  setTimeout(() => c.remove(), 7000);
-}
-
-function spawnMiniConfetti(btn) {
-  const rect = btn.getBoundingClientRect();
-  const c = document.createElement('div');
-  c.className = 'confetti-container';
-  document.body.appendChild(c);
-  const colors = ['#4ade80','#e2b44d','#f5d88e'];
-  for (let i = 0; i < 12; i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti';
-    p.style.left = (rect.left+rect.width/2+(Math.random()-0.5)*100)+'px';
-    p.style.top = rect.top+'px';
-    p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.animationDuration = (1+Math.random()*1.5)+'s';
-    const s = (3+Math.random()*5)+'px'; p.style.width = s; p.style.height = s;
-    p.style.borderRadius = '50%';
-    c.appendChild(p);
-  }
-  setTimeout(() => c.remove(), 3000);
-}
-
-// ── キーボード操作（1〜4で回答 / Enter・Spaceで次へ） ──
-document.addEventListener('keydown', (e) => {
-  if (document.getElementById('settings-overlay').style.display === 'flex') {
-    if (e.key === 'Escape') closeSettings();
-    return;
-  }
-  if ($quiz.style.display !== 'block') return;
-  if (!answered && ['1', '2', '3', '4'].includes(e.key)) {
-    const btn = document.querySelectorAll('.option-btn')[Number(e.key) - 1];
-    if (btn) btn.click();
-  } else if (answered && (e.key === 'Enter' || e.key === ' ')) {
-    e.preventDefault();
-    $nextBtn.click();
-  }
-});
 
 // ── 設定パネル（音量調整） ──
-const $bgmVol = document.getElementById('bgm-vol');
-const $seVol = document.getElementById('se-vol');
 function renderVolumeUI() {
   $bgmVol.value = Math.round(volumes.bgm * 100);
   $seVol.value = Math.round(volumes.se * 100);
-  document.getElementById('bgm-vol-label').textContent = $bgmVol.value + '%';
-  document.getElementById('se-vol-label').textContent = $seVol.value + '%';
+  $('bgm-vol-label').textContent = $bgmVol.value + '%';
+  $('se-vol-label').textContent = $seVol.value + '%';
+}
+function openSettings() {
+  renderVolumeUI();
+  timer.pause();
+  $settingsOverlay.style.display = 'flex';
 }
 function closeSettings() {
-  document.getElementById('settings-overlay').style.display = 'none';
-  resumeTimerFromSettings();
+  $settingsOverlay.style.display = 'none';
+  timer.resume();
 }
-document.getElementById('settings-btn').addEventListener('click', () => {
-  renderVolumeUI();
-  pauseTimerForSettings();
-  document.getElementById('settings-overlay').style.display = 'flex';
-});
-document.getElementById('settings-close').addEventListener('click', () => { playClickSound(); closeSettings(); });
-document.getElementById('settings-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'settings-overlay') closeSettings();
-});
+
+// ── イベント登録・初期化 ──
+initParticles();
+buildDifficultyUI();
+buildGenreUI();
+buildCountUI();
+updateExtremeUI();
+updatePoolCount();
+
+[$startBtn, $('retry-btn')].forEach(btn => btn.addEventListener('click', () => { SE.click(); startGame(); }));
+[$('back-btn'), $('quit-btn')].forEach(btn => btn.addEventListener('click', returnToTitle));
+$nextBtn.addEventListener('click', nextQuestion);
+
+$('settings-btn').addEventListener('click', openSettings);
+$('settings-close').addEventListener('click', () => { SE.click(); closeSettings(); });
+$settingsOverlay.addEventListener('click', e => { if (e.target === $settingsOverlay) closeSettings(); });
 $bgmVol.addEventListener('input', () => {
   volumes.bgm = $bgmVol.value / 100;
   renderVolumeUI();
-  bgmEngine.setVolume();
+  bgmEngine.ensure();
   persistSave();
 });
 $seVol.addEventListener('input', () => {
@@ -1551,9 +1379,25 @@ $seVol.addEventListener('input', () => {
   renderVolumeUI();
   persistSave();
 });
-$seVol.addEventListener('change', () => playClickSound());
+$seVol.addEventListener('change', SE.click);
 
-// ── 初回のユーザー操作でオーディオ開始（ブラウザの自動再生制限対策） ──
+// キーボード操作（1〜4で回答 / Enter・Spaceで次へ / Escで設定を閉じる）
+document.addEventListener('keydown', e => {
+  if ($settingsOverlay.style.display === 'flex') {
+    if (e.key === 'Escape') closeSettings();
+    return;
+  }
+  if ($quiz.style.display !== 'block') return;
+  if (!answered && ['1', '2', '3', '4'].includes(e.key)) {
+    const btn = $options.querySelectorAll('.option-btn')[Number(e.key) - 1];
+    if (btn) btn.click();
+  } else if (answered && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    nextQuestion();
+  }
+});
+
+// 初回のユーザー操作でオーディオ開始（ブラウザの自動再生制限対策）
 // タッチ端末では pointerdown 時点で再生許可が下りないため、
 // AudioContext が running になるのを確認できるまでリスナーを解除しない
 const AUDIO_UNLOCK_EVENTS = ['pointerup', 'keydown', 'click'];
