@@ -801,13 +801,23 @@ const WARN_ALL =
 
 // ── 保存データ（戦績・音量・出題履歴） ──
 const STORAGE_KEY = 'genshin-quiz-save';
+// 同じ保存場所に別の値が入っていても壊れないよう、形と範囲を確かめてから使う
 function loadSave() {
   let data = {};
   try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) {}
+  const vol = (v, def) => Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : def;
+  const isCount = v => Number.isInteger(v) && v >= 0;
+  const stats = {};
+  for (const [diff, st] of Object.entries(data.stats || {})) {
+    if (st && isCount(st.plays) && isCount(st.correct) && isCount(st.answered) && st.answered > 0 &&
+        st.best && isCount(st.best.score) && isCount(st.best.total) && st.best.total > 0) {
+      stats[diff] = { best: { score: st.best.score, total: st.best.total }, plays: st.plays, correct: st.correct, answered: st.answered };
+    }
+  }
   return {
-    volumes: Object.assign({ bgm: 0.4, se: 1.0 }, data.volumes),
-    stats: data.stats || {},
-    recentQ: Array.isArray(data.recentQ) ? data.recentQ : [],
+    volumes: { bgm: vol(data.volumes?.bgm, 0.4), se: vol(data.volumes?.se, 1.0) },
+    stats,
+    recentQ: Array.isArray(data.recentQ) ? data.recentQ.filter(q => typeof q === 'string') : [],
   };
 }
 function persistSave() {
@@ -852,6 +862,11 @@ function replayAnimation(el, animation) {
   el.style.animation = 'none';
   el.offsetHeight;
   el.style.animation = animation;
+}
+
+// データ由来の文字列を innerHTML に埋め込む前の無害化
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
 function showScreen(screen) {
@@ -921,14 +936,24 @@ const bgmEngine = {
   // 音量設定に合わせて再生・停止・音量を揃える（AudioContextは初回のユーザー操作後に生成される）
   ensure() {
     if (volumes.bgm <= 0 || !audioCtx) { this.stop(); return; }
-    if (!this.gainNode) { this.gainNode = audioCtx.createGain(); this.gainNode.connect(audioCtx.destination); }
-    this.gainNode.gain.value = volumes.bgm * 0.5;
+    if (!this.gainNode) {
+      this.gainNode = audioCtx.createGain();
+      this.gainNode.gain.value = 0;
+      this.gainNode.connect(audioCtx.destination);
+    }
+    // 音量は短く滑らかに変える（即時に変えるとクリックノイズが出る）
+    this.gainNode.gain.setTargetAtTime(volumes.bgm * 0.5, audioCtx.currentTime, 0.02);
     if (this.timer) return;
     this.nextNoteTime = audioCtx.currentTime + 0.1;
     this.step = 0;
     this.timer = setInterval(() => this.schedule(), 120);
   },
-  stop() { clearInterval(this.timer); this.timer = null; },
+  // 鳴らし済みの音（パッドは約4秒続く）も残さないよう音量も落とす。再開時は ensure() が戻す
+  stop() {
+    clearInterval(this.timer);
+    this.timer = null;
+    if (this.gainNode) this.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+  },
   schedule() {
     const cfg = this.CFG[this.scene] || this.CFG.title;
     const beat = 60 / cfg.bpm / 2; // 8分音符
@@ -1101,12 +1126,15 @@ function updateExtremeUI() {
   updateCountButtons();
 }
 
+// 出題対象のジャンル。超上級はジャンル選択を無視して全ジャンルから出題する
+function poolGenres() {
+  return selectedDifficulty === 'extreme' ? Object.keys(GENRES) : [...selectedGenres];
+}
+
 function getPool() {
   const pool = [];
-  // 超上級はジャンル選択を無視して全ジャンルから出題する
-  const genres = selectedDifficulty === 'extreme' ? Object.keys(GENRES) : selectedGenres;
   const diffs = selectedDifficulty === 'all' ? DIFF_KEYS : [selectedDifficulty];
-  for (const genre of genres) {
+  for (const genre of poolGenres()) {
     for (const d of diffs) {
       (quizData[genre][d] || []).forEach(q => pool.push({ ...q, category: GENRES[genre].label, difficulty: d }));
     }
@@ -1115,9 +1143,9 @@ function getPool() {
 }
 
 function updatePoolCount() {
-  const pool = getPool();
-  $('pool-count').textContent = pool.length;
-  $startBtn.disabled = pool.length === 0;
+  const total = poolGenres().reduce((t, g) => t + countQuestions(g, selectedDifficulty), 0);
+  $('pool-count').textContent = total;
+  $startBtn.disabled = total === 0;
   renderStatsLine();
   for (const key of Object.keys(GENRES)) {
     genreChips[key].querySelector('.chip-count').textContent = countQuestions(key, selectedDifficulty);
@@ -1180,8 +1208,8 @@ function startGame() {
   if (count === 0) return;
 
   // 未出題の問題を優先しつつ（直近の出題履歴を参照）、各グループ内の順序はランダムを保つ
-  const fresh = [], seen = [];
-  for (const q of shuffle(pool)) (saveData.recentQ.includes(q.q) ? seen : fresh).push(q);
+  const fresh = [], seen = [], recent = new Set(saveData.recentQ);
+  for (const q of shuffle(pool)) (recent.has(q.q) ? seen : fresh).push(q);
   // 選択肢は毎回シャッフルし、正解番号を付け替える
   questions = fresh.concat(seen).slice(0, count).map(q => {
     const order = shuffle([0, 1, 2, 3]);
@@ -1235,7 +1263,7 @@ function showQuestion() {
   q.o.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-label">${'ABCD'[i]}</span><span>${opt}</span>`;
+    btn.innerHTML = `<span class="option-label">${'ABCD'[i]}</span><span>${escapeHtml(opt)}</span>`;
     btn.style.animation = `fadeInUp ${0.3 + i * 0.08}s ease-out`;
     btn.addEventListener('click', () => { if (!answered) revealAnswer(i); });
     $options.appendChild(btn);
@@ -1286,10 +1314,10 @@ function revealAnswer(selectedIndex) {
 
   $progress.style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
   $('exp-text').textContent = q.e;
-  $('exp-src').innerHTML = sourceLinks(q.s);
   $explanation.style.display = 'block';
   $nextBtn.style.display = 'block';
   $nextBtn.textContent = currentQuestion < questions.length - 1 ? '次の問題 →' : '結果を見る →';
+  $('exp-src').innerHTML = sourceLinks(q.s); // 進行に必要な表示を済ませてから組む
 }
 
 function nextQuestion() {
@@ -1309,7 +1337,7 @@ function showResult() {
   $('stat-correct').textContent = score;
   $('stat-wrong').textContent = wrongAnswers.length;
 
-  // 円グラフをリセットしてからアニメーション
+  // スコアリングをリセットしてからアニメーション
   const circle = $('circle-fill');
   const circumference = 2 * Math.PI * 70;
   circle.style.transition = 'none';
@@ -1345,18 +1373,26 @@ function showResult() {
   review.style.display = wrongAnswers.length ? 'block' : 'none';
   review.innerHTML = '<p class="review-title">間違えた問題をおさらい</p>' + wrongAnswers.map(w =>
     '<div class="review-item">' +
-      '<p class="rv-q"><span class="rv-num">Q.' + w.n + '</span>' + w.q + '</p>' +
-      '<p class="rv-a"><span class="rv-correct">正解: ' + w.correct + '</span><span class="rv-chosen">あなた: ' + w.chosen + '</span></p>' +
-      '<p class="rv-e">' + w.e + '</p>' +
+      '<p class="rv-q"><span class="rv-num">Q.' + w.n + '</span>' + escapeHtml(w.q) + '</p>' +
+      '<p class="rv-a"><span class="rv-correct">正解: ' + escapeHtml(w.correct) + '</span><span class="rv-chosen">あなた: ' + escapeHtml(w.chosen) + '</span></p>' +
+      '<p class="rv-e">' + escapeHtml(w.e) + '</p>' +
       '<p class="src-links">' + sourceLinks(w.s) + '</p>' +
     '</div>').join('');
 }
 
-// 出典はWikiのページ名、またはURL（Wiki以外のサイト）で持つ
+// 出典はWikiのページ名、またはURL（Wiki以外のサイト）で持つ。データに不備があっても例外にしない
 function sourceLinks(sources) {
+  if (!Array.isArray(sources) || !sources.length) return '';
   return '出典：' + sources.map(s => {
-    const [href, label] = s.startsWith('http') ? [s, new URL(s).hostname] : [WIKI_BASE + encodeURIComponent(s).replace(/%2F/g, '/'), '原神Wiki「' + s + '」'];
-    return '<a href="' + href + '" target="_blank" rel="noopener">' + label + '</a>';
+    s = String(s);
+    let href = s, label = s;
+    if (s.startsWith('http')) {
+      try { label = new URL(s).hostname; } catch (e) {}
+    } else {
+      href = WIKI_BASE + encodeURIComponent(s).replace(/%2F/g, '/');
+      label = '原神Wiki「' + s + '」';
+    }
+    return '<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + escapeHtml(label) + '</a>';
   }).join('、');
 }
 
@@ -1367,12 +1403,16 @@ function renderVolumeUI() {
   $('bgm-vol-label').textContent = $bgmVol.value + '%';
   $('se-vol-label').textContent = $seVol.value + '%';
 }
+// 開いている間は背後の画面を inert にして、Tabキーでフォーカスが移らないようにする
+const $behindSettings = [document.querySelector('.container'), $('settings-btn')];
 function openSettings() {
   renderVolumeUI();
   timer.pause();
+  $behindSettings.forEach(el => { el.inert = true; });
   $settingsOverlay.style.display = 'flex';
 }
 function closeSettings() {
+  $behindSettings.forEach(el => { el.inert = false; });
   $settingsOverlay.style.display = 'none';
   timer.resume();
 }
@@ -1422,8 +1462,8 @@ document.addEventListener('keydown', e => {
 });
 
 // 初回のユーザー操作でオーディオ開始（ブラウザの自動再生制限対策）
-// タッチ端末では pointerdown 時点で再生許可が下りないため、
-// AudioContext が running になるのを確認できるまでリスナーを解除しない
+// Esc キーなど、ブラウザがユーザー操作と認めないキーでも keydown は届くため、
+// resume() 後に running になったことを確認できるまでリスナーを解除しない
 const AUDIO_UNLOCK_EVENTS = ['pointerup', 'keydown', 'click'];
 function initAudioOnce() {
   const ctx = getAudioCtx();
@@ -1437,7 +1477,7 @@ function initAudioOnce() {
 }
 AUDIO_UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, initAudioOnce));
 
-// タブが裏に回ったらBGMを一時停止し、戻ったら再開する（間引きによる断続再生の防止）
+// タブが裏に回ったらBGMを止め、戻ったら鳴らし直す（タイマー間引きによる断続再生の防止）
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) bgmEngine.stop();
   else bgmEngine.ensure();
