@@ -40,7 +40,7 @@
     body::before {
       content: '';
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background:
         radial-gradient(ellipse at 20% 50%, rgba(116, 194, 168, 0.08) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 20%, rgba(176, 143, 194, 0.08) 0%, transparent 50%),
@@ -53,7 +53,7 @@
 
     button { font-family: inherit; cursor: pointer; }
 
-    .particles { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .particle {
       position: absolute; width: 3px; height: 3px; background: var(--gold);
       border-radius: 50%; opacity: 0; animation: floatUp linear infinite;
@@ -71,7 +71,7 @@
 
     /* ===== SCREEN FLASH OVERLAY ===== */
     .screen-flash {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      position: fixed; inset: 0;
       pointer-events: none; z-index: 99; opacity: 0;
       transition: opacity 0.15s ease-out;
     }
@@ -106,8 +106,7 @@
 
     .settings-section { margin: 14px 0 6px; }
     .section-label {
-      font-size: 11px; color: var(--text-secondary); letter-spacing: 3px;
-      text-transform: uppercase; margin-bottom: 8px;
+      font-size: 11px; color: var(--text-secondary); letter-spacing: 3px; margin-bottom: 8px;
     }
 
     /* Difficulty */
@@ -205,15 +204,12 @@
     .question-meta {
       display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
     }
-    .question-category {
-      display: inline-block; font-size: 9px; color: var(--text-secondary); letter-spacing: 1px;
-      padding: 2px 7px;
-      background: rgba(255,255,255,0.04); border-radius: 10px; font-weight: 500;
-    }
-    .question-difficulty-badge {
+    .question-category, .question-difficulty-badge {
       display: inline-block; font-size: 9px; letter-spacing: 1px;
-      padding: 2px 7px; border-radius: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 10px;
     }
+    .question-category { color: var(--text-secondary); background: rgba(255,255,255,0.04); font-weight: 500; }
+    .question-difficulty-badge { font-weight: 600; }
     .badge-easy { color: var(--accent-anemo); background: rgba(116, 194, 168, 0.1); }
     .badge-normal { color: var(--accent-hydro); background: rgba(76, 194, 241, 0.1); }
     .badge-hard { color: var(--accent-pyro); background: rgba(239, 121, 56, 0.1); }
@@ -251,7 +247,7 @@
       border: 1px solid rgba(226, 180, 77, 0.15); border-radius: 8px;
       font-size: 12px; line-height: 1.5; color: var(--text-secondary); animation: fadeInUp 0.3s ease-out; display: none;
     }
-    .explanation .exp-label { color: var(--gold); font-weight: 700; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; display: block; }
+    .explanation .exp-label { color: var(--gold); font-weight: 700; font-size: 10px; letter-spacing: 2px; margin-bottom: 2px; display: block; }
     .src-links { font-size: 10px; margin-top: 4px; color: var(--text-secondary); }
     .src-links a { color: var(--gold-dark); }
     .src-links a:hover { color: var(--gold); }
@@ -277,7 +273,7 @@
     }
     .result-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-pyro), var(--gold), var(--accent-electro)); }
 
-    .result-rank { font-size: 16px; color: var(--text-secondary); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
+    .result-rank { font-size: 16px; color: var(--text-secondary); letter-spacing: 4px; margin-bottom: 12px; }
     .result-title {
       font-size: 32px; font-weight: 900;
       background: linear-gradient(135deg, var(--gold-light), var(--gold));
@@ -288,13 +284,12 @@
     .result-score-circle svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
     .result-score-circle circle { fill: none; stroke-width: 6; }
     .circle-bg { stroke: rgba(255,255,255,0.05); }
-    .circle-fill { stroke: var(--gold); stroke-linecap: round; stroke-dasharray: 439.82; stroke-dashoffset: 439.82; transition: stroke-dashoffset 1.5s ease-out; }
+    .circle-fill { stroke: var(--gold); stroke-linecap: round; transition: stroke-dashoffset 1.5s ease-out; }
 
     .result-score-number { font-size: 36px; font-weight: 900; color: var(--gold-light); }
     .result-score-number small { font-size: 16px; color: var(--text-secondary); font-weight: 500; }
 
     .result-stats { display: flex; justify-content: center; gap: 40px; margin: 16px 0 24px; }
-    .stat-item { text-align: center; }
     .stat-value { font-size: 24px; font-weight: 700; }
     .stat-value.correct-val { color: var(--correct); }
     .stat-value.wrong-val { color: var(--wrong); }
@@ -338,7 +333,7 @@
     }
     .review-title {
       font-size: 12px; color: var(--gold); font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; margin-bottom: 10px; text-align: center;
+      margin-bottom: 10px; text-align: center;
     }
     .review-item {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
@@ -365,7 +360,7 @@
     .settings-btn svg { width: 18px; height: 18px; }
     .settings-btn:hover { border-color: var(--gold); color: var(--gold); transform: rotate(30deg); }
     .settings-overlay {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      display: none; position: fixed; inset: 0;
       background: rgba(5, 8, 16, 0.7); z-index: 70;
       align-items: center; justify-content: center; padding: 20px;
     }
@@ -376,7 +371,7 @@
     }
     .settings-title {
       font-size: 14px; color: var(--gold); font-weight: 700; letter-spacing: 3px;
-      text-transform: uppercase; margin-bottom: 20px; text-align: center;
+      margin-bottom: 20px; text-align: center;
     }
     .settings-row { margin-bottom: 18px; }
     .settings-row label {
@@ -387,7 +382,7 @@
     .settings-row input[type="range"] { width: 100%; accent-color: var(--gold); cursor: pointer; }
     .settings-close-btn { display: block; margin: 8px auto 0; padding: 9px 32px; font-size: 13px; transition: all 0.2s ease; }
 
-    /* ===== EXTREME WARNING ===== */
+    /* ===== 注意書き（超上級・全難易度） ===== */
     .extreme-warning-box {
       max-width: 460px; margin: 0 auto; padding: 12px 18px;
       border: 1px solid rgba(239, 121, 56, 0.45); background: rgba(239, 121, 56, 0.08);
@@ -405,7 +400,7 @@
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 10% { transform: translateX(-12px); } 30% { transform: translateX(10px); } 50% { transform: translateX(-8px); } 70% { transform: translateX(6px); } 90% { transform: translateX(-3px); } }
 
-    .confetti-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
     .confetti { position: absolute; width: 8px; height: 8px; top: -10px; animation: confettiFall linear forwards; }
     @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 
@@ -435,11 +430,11 @@
     <div class="settings-card">
       <p class="settings-title">設定</p>
       <div class="settings-row">
-        <label>BGM音量 <span id="bgm-vol-label">40%</span></label>
+        <label for="bgm-vol">BGM音量 <span id="bgm-vol-label">40%</span></label>
         <input type="range" id="bgm-vol" min="0" max="100" step="5">
       </div>
       <div class="settings-row">
-        <label>SE音量 <span id="se-vol-label">100%</span></label>
+        <label for="se-vol">SE音量 <span id="se-vol-label">100%</span></label>
         <input type="range" id="se-vol" min="0" max="100" step="5">
       </div>
       <button class="settings-close-btn" id="settings-close">閉じる</button>
@@ -539,12 +534,12 @@
 //  QUIZ DATA – ジャンル × 難易度
 // =======================================================================
 const GENRES = {
-  character: { label: "キャラクター" },
-  element:   { label: "元素・反応" },
-  story:     { label: "ストーリー・世界観" },
-  region:    { label: "地域・探索" },
-  weapon:    { label: "武器・聖遺物" },
-  system:    { label: "システム" },
+  character: { label: 'キャラクター' },
+  element:   { label: '元素・反応' },
+  story:     { label: 'ストーリー・世界観' },
+  region:    { label: '地域・探索' },
+  weapon:    { label: '武器・聖遺物' },
+  system:    { label: 'システム' },
 };
 
 const quizData = {
@@ -776,7 +771,9 @@ const DIFFS = {
   extreme: { label: '超上級', timer: 20 },
 };
 const DIFF_KEYS = Object.keys(DIFFS);
-const COUNT_CHOICES = [{ label: '10', value: 10 }, { label: '20', value: 20 }, { label: '全問', value: 9999 }];
+const GENRE_KEYS = Object.keys(GENRES);
+const COUNT_CHOICES = [{ label: '10', value: 10 }, { label: '20', value: 20 }, { label: '全問', value: Infinity }];
+const EXTREME_COUNT = 10; // 超上級の出題数（固定）
 const RECENT_LIMIT = 200; // 出題履歴の保持件数
 const WIKI_BASE = 'https://wikiwiki.jp/genshinwiki/';
 const RANKS = [
@@ -786,13 +783,13 @@ const RANKS = [
   { min: 0.4, rank: 'B',   title: '成長中の冒険者', message: 'もう少し冒険を続ければ、もっと多くのことを知れるでしょう。' },
   { min: 0,   rank: 'C',   title: '駆け出しの旅人', message: 'まだ旅は始まったばかり。テイワットを探索してもう一度挑戦しましょう！' },
 ];
-// 超上級選択時はジャンル選択を注意書きに差し替え、出題数を10問に固定する
+// 超上級選択時はジャンル選択を注意書きに差し替え、出題数を EXTREME_COUNT に固定する
 // （全難易度にも超上級問題が混ざるため、そのときはネタバレ注意だけ表示する）
 const WARN_EXTREME =
   '<span class="warn-title">挑戦前の注意</span>' +
   '超上級は、テイワットの深層に触れた旅人のために用意された試練です。<br>' +
   '本難易度には、最新バージョンを含むストーリーの<strong>ネタバレ</strong>が含まれます。<br>' +
-  'ジャンルの指定はなく、全ジャンルから10問が出題されます。<br>' +
+  'ジャンルの指定はなく、全ジャンルから' + EXTREME_COUNT + '問が出題されます。<br>' +
   '以上をご了承の上、覚悟を決めた旅人のみ先へお進みください。';
 const WARN_ALL =
   '<span class="warn-title">注意</span>' +
@@ -828,7 +825,7 @@ const volumes = saveData.volumes;
 
 // ── 状態 ──
 let selectedDifficulty = 'easy';
-let selectedGenres = new Set(Object.keys(GENRES));
+let selectedGenres = new Set(GENRE_KEYS);
 let questionCount = 10;
 let preExtremeCount = null; // 超上級に切り替える前の出題数（他の難易度に戻したとき復元する）
 let questions = [];
@@ -1080,11 +1077,11 @@ function buildCountUI() {
   });
 }
 
-// 出題数ボタンの選択状態を反映（超上級では10問以外を隠す）
+// 出題数ボタンの選択状態を反映（超上級では固定の出題数以外を隠す）
 function updateCountButtons() {
   const isExtreme = selectedDifficulty === 'extreme';
   countBtns.forEach(({ btn, value }) => {
-    btn.style.display = isExtreme && value !== 10 ? 'none' : '';
+    btn.style.display = isExtreme && value !== EXTREME_COUNT ? 'none' : '';
     btn.classList.toggle('active', value === questionCount);
   });
 }
@@ -1096,13 +1093,13 @@ function countQuestions(genre, diff) {
 function toggleGenre(key) {
   if (key === 'all') {
     const selectAll = !genreChips.all.classList.contains('active');
-    selectedGenres = new Set(selectAll ? Object.keys(GENRES) : []);
+    selectedGenres = new Set(selectAll ? GENRE_KEYS : []);
   } else if (selectedGenres.has(key)) {
     selectedGenres.delete(key);
   } else {
     selectedGenres.add(key);
   }
-  const allSelected = selectedGenres.size === Object.keys(GENRES).length;
+  const allSelected = selectedGenres.size === GENRE_KEYS.length;
   for (const [k, chip] of Object.entries(genreChips)) {
     chip.classList.toggle('active', k === 'all' ? allSelected : selectedGenres.has(k));
   }
@@ -1118,7 +1115,7 @@ function updateExtremeUI() {
 
   if (isExtreme) {
     if (preExtremeCount === null) preExtremeCount = questionCount;
-    questionCount = 10;
+    questionCount = EXTREME_COUNT;
   } else if (preExtremeCount !== null) {
     questionCount = preExtremeCount;
     preExtremeCount = null;
@@ -1128,7 +1125,7 @@ function updateExtremeUI() {
 
 // 出題対象のジャンル。超上級はジャンル選択を無視して全ジャンルから出題する
 function poolGenres() {
-  return selectedDifficulty === 'extreme' ? Object.keys(GENRES) : [...selectedGenres];
+  return selectedDifficulty === 'extreme' ? GENRE_KEYS : [...selectedGenres];
 }
 
 function getPool() {
@@ -1147,7 +1144,7 @@ function updatePoolCount() {
   $('pool-count').textContent = total;
   $startBtn.disabled = total === 0;
   renderStatsLine();
-  for (const key of Object.keys(GENRES)) {
+  for (const key of GENRE_KEYS) {
     genreChips[key].querySelector('.chip-count').textContent = countQuestions(key, selectedDifficulty);
   }
 }
@@ -1337,9 +1334,10 @@ function showResult() {
   $('stat-correct').textContent = score;
   $('stat-wrong').textContent = wrongAnswers.length;
 
-  // スコアリングをリセットしてからアニメーション
+  // スコアリングをリセットしてからアニメーション（円周は SVG の半径から求める）
   const circle = $('circle-fill');
-  const circumference = 2 * Math.PI * 70;
+  const circumference = 2 * Math.PI * circle.r.baseVal.value;
+  circle.style.strokeDasharray = circumference;
   circle.style.transition = 'none';
   circle.style.strokeDashoffset = circumference;
   circle.getBoundingClientRect(); // SVG要素にoffsetHeightはないため、リフローはこちらで発生させる
