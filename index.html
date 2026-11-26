@@ -34,7 +34,6 @@
       color: var(--text-primary);
       min-height: 100vh;
       overflow-x: hidden;
-      position: relative;
     }
 
     body::before {
@@ -46,7 +45,7 @@
         radial-gradient(ellipse at 80% 20%, rgba(176, 143, 194, 0.08) 0%, transparent 50%),
         radial-gradient(ellipse at 50% 80%, rgba(226, 180, 77, 0.06) 0%, transparent 50%);
       z-index: 0;
-      animation: bgShift 20s ease-in-out infinite alternate;
+      animation: bgShift 20s ease-in-out infinite;
     }
 
     @keyframes bgShift { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
@@ -55,7 +54,7 @@
 
     .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
     .particle {
-      position: absolute; width: 3px; height: 3px; background: var(--gold);
+      position: absolute; background: var(--gold);
       border-radius: 50%; opacity: 0; animation: floatUp linear infinite;
     }
     @keyframes floatUp {
@@ -94,17 +93,20 @@
       content: '✦'; font-size: 48px; color: var(--gold);
       text-shadow: 0 0 30px rgba(226, 180, 77, 0.5); animation: pulse 3s ease-in-out infinite;
     }
-    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
-    .logo-title {
+    /* 金色のグラデーション文字（タイトル・結果画面の称号） */
+    .logo-title, .result-title {
       font-size: 32px; font-weight: 900;
-      background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
       -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-title {
+      background-image: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
       letter-spacing: 4px; margin-bottom: 4px;
     }
     .logo-subtitle { font-size: 12px; color: var(--text-secondary); letter-spacing: 6px; text-transform: uppercase; }
 
-    .settings-section { margin: 14px 0 6px; }
+    .start-section { margin: 14px 0 6px; }
     .section-label {
       font-size: 11px; color: var(--text-secondary); letter-spacing: 3px; margin-bottom: 8px;
     }
@@ -133,7 +135,7 @@
       backdrop-filter: blur(10px); display: flex; align-items: center; gap: 5px;
       user-select: none;
     }
-    .genre-chip:hover { background: var(--bg-card-hover); border-color: rgba(226, 180, 77, 0.3); }
+    .genre-chip:hover { background: var(--bg-card-hover); border-color: var(--border-glow); }
     .genre-chip.active {
       background: linear-gradient(135deg, rgba(226, 180, 77, 0.15), rgba(226, 180, 77, 0.08));
       border-color: var(--gold); color: var(--gold-light);
@@ -151,12 +153,13 @@
       color: var(--text-secondary); border-radius: 8px;
       font-size: 13px; font-weight: 600; transition: all 0.3s ease;
     }
-    .count-btn:hover { border-color: var(--gold); color: var(--text-primary); }
+    .count-btn:not(.active):hover { border-color: var(--gold); color: var(--text-primary); }
 
     .available-count {
       font-size: 12px; color: var(--text-secondary); margin-top: 6px;
     }
-    .available-count span { color: var(--gold); font-weight: 700; }
+    /* 金色の強調数字（問題プール・戦績・音量） */
+    .available-count span, .stats-line span, .settings-row label span { color: var(--gold); font-weight: 700; }
 
     /* 金色の塗りボタン（スタート・もう一度） */
     .start-btn, .retry-btn {
@@ -169,7 +172,7 @@
     .start-btn::after {
       content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
       background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-      transform: rotate(45deg); animation: shimmer 3s infinite;
+      animation: shimmer 3s infinite;
     }
     @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
     .start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -191,7 +194,7 @@
     }
     .quit-btn:hover { border-color: var(--wrong); color: var(--wrong); }
 
-    .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
+    .progress-bar, .timer-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(226, 180, 77, 0.3); }
 
     .question-card {
@@ -204,10 +207,7 @@
     .question-meta {
       display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
     }
-    .question-category, .question-difficulty-badge {
-      display: inline-block; font-size: 9px; letter-spacing: 1px;
-      padding: 2px 7px; border-radius: 10px;
-    }
+    .question-category, .question-difficulty-badge { font-size: 9px; letter-spacing: 1px; padding: 2px 7px; border-radius: 10px; }
     .question-category { color: var(--text-secondary); background: rgba(255,255,255,0.04); font-weight: 500; }
     .question-difficulty-badge { font-weight: 600; }
     .badge-easy { color: var(--accent-anemo); background: rgba(116, 194, 168, 0.1); }
@@ -215,7 +215,7 @@
     .badge-hard { color: var(--accent-pyro); background: rgba(239, 121, 56, 0.1); }
     .badge-extreme { color: var(--accent-electro); background: rgba(176, 143, 194, 0.12); }
 
-    .question-text { font-size: 16px; font-weight: 700; line-height: 1.45; color: var(--text-primary); }
+    .question-text { font-size: 16px; font-weight: 700; line-height: 1.45; }
 
     .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .option-btn {
@@ -226,7 +226,7 @@
       display: flex; align-items: flex-start; gap: 8px;
     }
     .option-btn:hover:not(.disabled) {
-      background: var(--bg-card-hover); border-color: rgba(226, 180, 77, 0.3);
+      background: var(--bg-card-hover); border-color: var(--border-glow);
       box-shadow: 0 2px 12px rgba(0,0,0,0.2);
     }
     .option-label {
@@ -261,7 +261,6 @@
     }
     .next-btn:hover { background: linear-gradient(135deg, rgba(226, 180, 77, 0.3), rgba(226, 180, 77, 0.15)); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(226, 180, 77, 0.2); }
 
-    .timer-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
     .timer-fill { height: 100%; width: 100%; border-radius: 2px; transition: width 0.05s linear, background-color 0.5s ease; background: var(--accent-anemo); }
     .timer-fill.warning { background: var(--accent-pyro); }
 
@@ -274,11 +273,7 @@
     .result-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-pyro), var(--gold), var(--accent-electro)); }
 
     .result-rank { font-size: 16px; color: var(--text-secondary); letter-spacing: 4px; margin-bottom: 12px; }
-    .result-title {
-      font-size: 32px; font-weight: 900;
-      background: linear-gradient(135deg, var(--gold-light), var(--gold));
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 32px;
-    }
+    .result-title { background-image: linear-gradient(135deg, var(--gold-light), var(--gold)); margin-bottom: 32px; }
 
     .result-score-circle { width: 130px; height: 130px; margin: 0 auto 20px; position: relative; display: flex; align-items: center; justify-content: center; }
     .result-score-circle svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -319,7 +314,6 @@
 
     /* ===== STATS ===== */
     .stats-line { font-size: 12px; color: var(--text-secondary); margin-top: 8px; min-height: 18px; }
-    .stats-line span { color: var(--gold); font-weight: 700; }
     .new-record {
       display: none; font-size: 13px; font-weight: 700; color: var(--gold-light);
       letter-spacing: 2px; margin-bottom: 12px; animation: comboPop 0.4s ease-out;
@@ -339,7 +333,7 @@
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
     }
-    .review-item .rv-q { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; line-height: 1.5; }
+    .review-item .rv-q { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.5; }
     .review-item .rv-num {
       display: inline-block; color: var(--gold); font-size: 11px; font-weight: 700;
       background: rgba(226, 180, 77, 0.12); padding: 1px 8px; border-radius: 8px; margin-right: 7px;
@@ -374,34 +368,30 @@
       margin-bottom: 20px; text-align: center;
     }
     .settings-row { margin-bottom: 18px; }
-    .settings-row label {
-      display: flex; justify-content: space-between; font-size: 13px;
-      color: var(--text-primary); margin-bottom: 8px;
-    }
-    .settings-row label span { color: var(--gold); font-weight: 700; }
+    .settings-row label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
     .settings-row input[type="range"] { width: 100%; accent-color: var(--gold); cursor: pointer; }
     .settings-close-btn { display: block; margin: 8px auto 0; padding: 9px 32px; font-size: 13px; transition: all 0.2s ease; }
 
     /* ===== 注意書き（超上級・全難易度） ===== */
-    .extreme-warning-box {
+    .warning-box {
       max-width: 460px; margin: 0 auto; padding: 12px 18px;
       border: 1px solid rgba(239, 121, 56, 0.45); background: rgba(239, 121, 56, 0.08);
-      border-radius: 12px; font-size: 12.5px; line-height: 1.8; color: var(--text-primary);
+      border-radius: 12px; font-size: 12.5px; line-height: 1.8;
       animation: fadeInUp 0.3s ease-out;
     }
-    .extreme-warning-box strong { color: var(--accent-pyro); }
-    .extreme-warning-box .warn-title {
+    .warning-box strong { color: var(--accent-pyro); }
+    .warning-box .warn-title {
       display: block; color: var(--gold); font-weight: 700; font-size: 12px;
       letter-spacing: 3px; margin-bottom: 4px;
     }
-    .extreme-warning-box .warn-title::before { content: '※ '; }
+    .warning-box .warn-title::before { content: '※ '; }
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 10% { transform: translateX(-12px); } 30% { transform: translateX(10px); } 50% { transform: translateX(-8px); } 70% { transform: translateX(6px); } 90% { transform: translateX(-3px); } }
 
     .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
-    .confetti { position: absolute; width: 8px; height: 8px; top: -10px; animation: confettiFall linear forwards; }
+    .confetti { position: absolute; top: -10px; animation: confettiFall linear forwards; }
     @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 
     @media (max-width: 600px) {
@@ -430,11 +420,11 @@
     <div class="settings-card">
       <p class="settings-title">設定</p>
       <div class="settings-row">
-        <label for="bgm-vol">BGM音量 <span id="bgm-vol-label">40%</span></label>
+        <label for="bgm-vol">BGM音量 <span id="bgm-vol-label"></span></label>
         <input type="range" id="bgm-vol" min="0" max="100" step="5">
       </div>
       <div class="settings-row">
-        <label for="se-vol">SE音量 <span id="se-vol-label">100%</span></label>
+        <label for="se-vol">SE音量 <span id="se-vol-label"></span></label>
         <input type="range" id="se-vol" min="0" max="100" step="5">
       </div>
       <button class="settings-close-btn" id="settings-close">閉じる</button>
@@ -448,24 +438,24 @@
       <h1 class="logo-title">原神クイズ</h1>
       <p class="logo-subtitle">Genshin Impact Quiz</p>
 
-      <div class="settings-section">
+      <div class="start-section">
         <p class="section-label">難易度</p>
         <div class="difficulty-options" id="difficulty-options"></div>
       </div>
 
-      <div class="settings-section" id="genre-section">
+      <div class="start-section" id="genre-section">
         <p class="section-label">ジャンル（複数選択可）</p>
         <div class="genre-grid" id="genre-grid"></div>
       </div>
 
-      <div class="settings-section" id="extreme-warning" style="display: none;">
-        <div class="extreme-warning-box" id="extreme-warning-box"></div>
+      <div class="start-section" id="difficulty-warning" style="display: none;">
+        <div class="warning-box" id="difficulty-warning-box"></div>
       </div>
 
-      <div class="settings-section">
+      <div class="start-section">
         <p class="section-label">出題数</p>
         <div class="count-options" id="count-options"></div>
-        <p class="available-count">選択中の問題プール: <span id="pool-count">0</span>問</p>
+        <p class="available-count">選択中の問題プール: <span id="pool-count"></span>問</p>
         <p class="stats-line" id="stats-line"></p>
       </div>
 
@@ -476,8 +466,8 @@
     <div id="quiz-screen">
       <div class="quiz-header">
         <div class="quiz-header-left">
-          <div class="question-counter">Q.<span id="q-current">1</span> / <span id="q-total">10</span></div>
-          <div class="quiz-tally"><span class="tally-correct">○<span id="tally-correct">0</span></span><span class="tally-wrong">×<span id="tally-wrong">0</span></span></div>
+          <div class="question-counter">Q.<span id="q-current"></span> / <span id="q-total"></span></div>
+          <div class="quiz-tally"><span class="tally-correct">○<span id="tally-correct"></span></span><span class="tally-wrong">×<span id="tally-wrong"></span></span></div>
           <span class="combo-badge" id="combo-badge"></span>
         </div>
         <button class="quit-btn" id="quit-btn">中断</button>
@@ -486,7 +476,7 @@
       <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
       <div class="question-card" id="question-card">
         <div class="question-meta">
-          <span class="question-category" id="q-category">キャラクター</span>
+          <span class="question-category" id="q-category"></span>
           <span class="question-difficulty-badge" id="q-diff-badge"></span>
         </div>
         <p class="question-text" id="q-text"></p>
@@ -497,26 +487,26 @@
         <p id="exp-text"></p>
         <p class="src-links" id="exp-src"></p>
       </div>
-      <button class="next-btn" id="next-btn">次の問題 →</button>
+      <button class="next-btn" id="next-btn"></button>
     </div>
 
     <!-- RESULT SCREEN -->
     <div id="result-screen">
       <div class="result-card">
-        <p class="result-rank" id="result-rank">RANK</p>
-        <h2 class="result-title" id="result-title">称号</h2>
+        <p class="result-rank" id="result-rank"></p>
+        <h2 class="result-title" id="result-title"></h2>
         <div class="result-score-circle">
           <svg viewBox="0 0 160 160">
             <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
             <circle class="circle-fill" id="circle-fill" cx="80" cy="80" r="70"></circle>
           </svg>
           <div class="result-score-number">
-            <span id="result-score">0</span><small> / <span id="result-total">10</span></small>
+            <span id="result-score"></span><small> / <span id="result-total"></span></small>
           </div>
         </div>
         <div class="result-stats">
-          <div class="stat-item"><div class="stat-value correct-val" id="stat-correct">0</div><div class="stat-label">正解</div></div>
-          <div class="stat-item"><div class="stat-value wrong-val" id="stat-wrong">0</div><div class="stat-label">不正解</div></div>
+          <div><div class="stat-value correct-val" id="stat-correct"></div><div class="stat-label">正解</div></div>
+          <div><div class="stat-value wrong-val" id="stat-wrong"></div><div class="stat-label">不正解</div></div>
         </div>
         <p class="new-record" id="new-record">自己ベスト更新</p>
         <p class="result-message" id="result-message"></p>
@@ -764,27 +754,26 @@ const quizData = {
 const $ = id => document.getElementById(id);
 
 // ── 定数 ──
-const DIFFS = {
-  easy:    { label: '初級',   timer: 20 },
-  normal:  { label: '中級',   timer: 15 },
-  hard:    { label: '上級',   timer: 12 },
-  extreme: { label: '超上級', timer: 20 },
+const DIFFS = { // timeLimit: 1問の制限時間（秒）
+  easy:    { label: '初級',   timeLimit: 20 },
+  normal:  { label: '中級',   timeLimit: 15 },
+  hard:    { label: '上級',   timeLimit: 12 },
+  extreme: { label: '超上級', timeLimit: 20 },
 };
 const DIFF_KEYS = Object.keys(DIFFS);
 const GENRE_KEYS = Object.keys(GENRES);
 const COUNT_CHOICES = [{ label: '10', value: 10 }, { label: '20', value: 20 }, { label: '全問', value: Infinity }];
 const EXTREME_COUNT = 10; // 超上級の出題数（固定）
-const RECENT_LIMIT = 200; // 出題履歴の保持件数
+const RECENT_LIMIT = 200; // 出題履歴に残す問題数（全問題数より多ければ、全問の「最後に出た順」が残る）
 const WIKI_BASE = 'https://wikiwiki.jp/genshinwiki/';
-const RANKS = [
-  { min: 1,   rank: 'SSS', title: '全知全能の旅人', message: '完璧！テイワットのすべてを知り尽くしています。あなたは真の冒険者です！' },
-  { min: 0.8, rank: 'S',   title: '博識な冒険者',   message: '素晴らしい知識量です！もう少しで完璧ですね。' },
+const RANKS = [ // min: 正答率の下限 / fanfare: 紙吹雪とファンファーレで祝う
+  { min: 1,   rank: 'SSS', title: '全知全能の旅人', message: '完璧！テイワットのすべてを知り尽くしています。あなたは真の冒険者です！', fanfare: true },
+  { min: 0.8, rank: 'S',   title: '博識な冒険者',   message: '素晴らしい知識量です！もう少しで完璧ですね。', fanfare: true },
   { min: 0.6, rank: 'A',   title: '熟練の旅人',     message: '良い結果です！まだまだテイワットには発見が待っています。' },
   { min: 0.4, rank: 'B',   title: '成長中の冒険者', message: 'もう少し冒険を続ければ、もっと多くのことを知れるでしょう。' },
   { min: 0,   rank: 'C',   title: '駆け出しの旅人', message: 'まだ旅は始まったばかり。テイワットを探索してもう一度挑戦しましょう！' },
 ];
-// 超上級選択時はジャンル選択を注意書きに差し替え、出題数を EXTREME_COUNT に固定する
-// （全難易度にも超上級問題が混ざるため、そのときはネタバレ注意だけ表示する）
+// 難易度の下に出す注意書き（超上級・全難易度）
 const WARN_EXTREME =
   '<span class="warn-title">挑戦前の注意</span>' +
   '超上級は、テイワットの深層に触れた旅人のために用意された試練です。<br>' +
@@ -866,7 +855,11 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
+const rand = (min, max) => min + Math.random() * (max - min);
+
+let screenShownAt = 0; // 画面を切り替えた時刻（直後に届くダブルクリックの2回目を捨てるのに使う）
 function showScreen(screen) {
+  screenShownAt = performance.now();
   [$start, $quiz, $result].forEach(s => { s.style.display = s === screen ? 'block' : 'none'; });
 }
 
@@ -898,14 +891,16 @@ function playTone({ type = 'sine', freq, freqEnd, at, dur, gain, attack = 0, lin
   osc.stop(at + dur);
 }
 
-// 効果音: 音量設定を反映し、複数音を spacing 秒間隔で鳴らす
+// 効果音: 音量設定を反映し、複数音を spacing 秒間隔で鳴らす。音を出せない環境でもゲームは止めない
 function playSE(notes, spacing = 0) {
   if (volumes.se <= 0) return;
-  const now = getAudioCtx().currentTime;
-  notes.forEach((n, i) => playTone({ ...n, at: now + i * spacing, gain: n.gain * volumes.se }));
+  try {
+    const now = getAudioCtx().currentTime;
+    notes.forEach((n, i) => playTone({ ...n, at: now + i * spacing, gain: n.gain * volumes.se }));
+  } catch (e) {}
 }
 const SE = {
-  correct: () => playSE(
+  correct: combo => playSE(
     [523.25, 659.25, 783.99].concat(combo >= 5 ? [1318.51] : []) // 5コンボ以上でキラッと一音追加
       .map(freq => ({ freq, dur: 0.4, gain: 0.18 })), 0.1),
   wrong:   () => playSE([{ type: 'square', freq: 200, freqEnd: 120, dur: 0.4, gain: 0.15 }]),
@@ -915,7 +910,7 @@ const SE = {
 
 // ── BGM（Web Audioによる自動生成・原神風アンビエント） ──
 const bgmEngine = {
-  gainNode: null, timer: null, scene: 'title', step: 0, nextNoteTime: 0,
+  gainNode: null, intervalId: null, scene: 'title', step: 0, nextNoteTime: 0,
   // Dメジャーペンタトニック（穏やかなファンタジー調）
   SCALE: [293.66, 329.63, 369.99, 440.00, 493.88, 587.33, 659.25, 739.99, 880.00],
   CHORDS: [
@@ -925,13 +920,13 @@ const bgmEngine = {
     [110.00, 164.81, 220.00, 277.18],  // A
   ],
   CFG: {
-    title:  { bpm: 62, density: 0.40, high: 0 },
-    quiz:   { bpm: 84, density: 0.60, high: 0 },
-    result: { bpm: 72, density: 0.65, high: 1 },
+    title:  { bpm: 62, density: 0.40, high: false },
+    quiz:   { bpm: 84, density: 0.60, high: false },
+    result: { bpm: 72, density: 0.65, high: true }, // high: メロディを高い音域に寄せる
   },
-  setScene(scene) { this.scene = scene; this.ensure(); },
+  setScene(scene) { this.scene = scene; this.sync(); },
   // 音量設定に合わせて再生・停止・音量を揃える（AudioContextは初回のユーザー操作後に生成される）
-  ensure() {
+  sync() {
     if (volumes.bgm <= 0 || !audioCtx) { this.stop(); return; }
     if (!this.gainNode) {
       this.gainNode = audioCtx.createGain();
@@ -940,19 +935,24 @@ const bgmEngine = {
     }
     // 音量は短く滑らかに変える（即時に変えるとクリックノイズが出る）
     this.gainNode.gain.setTargetAtTime(volumes.bgm * 0.5, audioCtx.currentTime, 0.02);
-    if (this.timer) return;
+    if (this.intervalId) return;
     this.nextNoteTime = audioCtx.currentTime + 0.1;
     this.step = 0;
-    this.timer = setInterval(() => this.schedule(), 120);
+    this.intervalId = setInterval(() => this.schedule(), 120);
   },
-  // 鳴らし済みの音（パッドは約4秒続く）も残さないよう音量も落とす。再開時は ensure() が戻す
+  // 止めるときは出力ノードごと切り離す。鳴らし済みの音（パッドは最長約4秒続く）が、
+  // すぐ再開したときに戻ってきて新しい音と重ならないようにするため。再開時は sync() が新しいノードを作る
   stop() {
-    clearInterval(this.timer);
-    this.timer = null;
-    if (this.gainNode) this.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+    if (!this.gainNode) return;
+    const old = this.gainNode;
+    this.gainNode = null;
+    old.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+    setTimeout(() => old.disconnect(), 200);
   },
   schedule() {
-    const cfg = this.CFG[this.scene] || this.CFG.title;
+    const cfg = this.CFG[this.scene];
     const beat = 60 / cfg.bpm / 2; // 8分音符
     // バックグラウンドでタイマーが間引かれた後は、過去分を演奏せず現在時刻まで進める
     if (this.nextNoteTime < audioCtx.currentTime - 0.05) this.nextNoteTime = audioCtx.currentTime + 0.05;
@@ -986,6 +986,7 @@ function flashScreen(type) {
 }
 
 // 紙吹雪。origin を渡すとその要素の位置から小さく散らし、省略時は画面上部から降らせる
+// size（px）と duration（秒）は [最小, 最大]
 function spawnConfetti({ count, colors, size, duration, life, origin }) {
   const c = document.createElement('div');
   c.className = 'confetti-container';
@@ -1004,19 +1005,20 @@ function spawnConfetti({ count, colors, size, duration, life, origin }) {
       p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
     }
     p.style.background = colors[Math.floor(Math.random() * colors.length)];
-    p.style.animationDuration = (duration[0] + Math.random() * duration[1]) + 's';
-    const s = (size[0] + Math.random() * size[1]) + 'px';
+    p.style.animationDuration = rand(...duration) + 's';
+    const s = rand(...size) + 'px';
     p.style.width = s; p.style.height = s;
     c.appendChild(p);
   }
   setTimeout(() => c.remove(), life);
 }
 const confettiRain = () => spawnConfetti({
-  count: 100, colors: ['#e2b44d', '#f5d88e', '#74c2a8', '#b08fc2', '#ef7938', '#4cc2f1', '#f87171', '#4ade80'],
-  size: [4, 8], duration: [2, 3], life: 7000,
+  count: 100, size: [4, 12], duration: [2, 5], life: 7000,
+  colors: ['--gold', '--gold-light', '--accent-anemo', '--accent-electro', '--accent-pyro', '--accent-hydro', '--wrong', '--correct'].map(v => `var(${v})`),
 });
 const confettiBurst = origin => spawnConfetti({
-  count: 12, colors: ['#4ade80', '#e2b44d', '#f5d88e'], size: [3, 5], duration: [1, 1.5], life: 3000, origin,
+  count: 12, size: [3, 8], duration: [1, 2.5], life: 3000, origin,
+  colors: ['--correct', '--gold', '--gold-light'].map(v => `var(${v})`),
 });
 
 function initParticles() {
@@ -1025,9 +1027,9 @@ function initParticles() {
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = Math.random() * 100 + '%';
-    p.style.animationDuration = (6 + Math.random() * 10) + 's';
+    p.style.animationDuration = rand(6, 16) + 's';
     p.style.animationDelay = Math.random() * 10 + 's';
-    const s = (2 + Math.random() * 3) + 'px';
+    const s = rand(2, 5) + 'px';
     p.style.width = s; p.style.height = s;
     c.appendChild(p);
   }
@@ -1044,8 +1046,9 @@ function buildDifficultyUI() {
     btn.addEventListener('click', () => {
       selectedDifficulty = key;
       container.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b === btn));
-      updateExtremeUI();
+      updateDifficultyUI();
       updatePoolCount();
+      renderStatsLine();
     });
     container.appendChild(btn);
   });
@@ -1053,16 +1056,17 @@ function buildDifficultyUI() {
 
 function buildGenreUI() {
   const grid = $('genre-grid');
-  const makeChip = (key, label, count) => {
+  const makeChip = (key, label) => {
     const chip = document.createElement('button');
     chip.className = 'genre-chip active';
-    chip.innerHTML = label + (count === undefined ? '' : `<span class="chip-count">${count}</span>`);
+    // 件数は updatePoolCount() が入れる（「すべて」には件数を出さない）
+    chip.innerHTML = label + (key === 'all' ? '' : '<span class="chip-count"></span>');
     chip.addEventListener('click', () => toggleGenre(key));
     genreChips[key] = chip;
     grid.appendChild(chip);
   };
   makeChip('all', 'すべて');
-  for (const [key, { label }] of Object.entries(GENRES)) makeChip(key, label, countQuestions(key, 'all'));
+  for (const key of GENRE_KEYS) makeChip(key, GENRES[key].label);
 }
 
 function buildCountUI() {
@@ -1092,7 +1096,7 @@ function countQuestions(genre, diff) {
 
 function toggleGenre(key) {
   if (key === 'all') {
-    const selectAll = !genreChips.all.classList.contains('active');
+    const selectAll = selectedGenres.size !== GENRE_KEYS.length;
     selectedGenres = new Set(selectAll ? GENRE_KEYS : []);
   } else if (selectedGenres.has(key)) {
     selectedGenres.delete(key);
@@ -1106,12 +1110,14 @@ function toggleGenre(key) {
   updatePoolCount();
 }
 
-function updateExtremeUI() {
+// 難易度に合わせてスタート画面を切り替える。超上級はジャンル選択を注意書きに差し替えて出題数を固定し、
+// 全難易度は（超上級の問題が混ざるので）ネタバレ注意だけを出す
+function updateDifficultyUI() {
   const isExtreme = selectedDifficulty === 'extreme';
   const isAll = selectedDifficulty === 'all';
   $('genre-section').style.display = isExtreme ? 'none' : '';
-  $('extreme-warning').style.display = isExtreme || isAll ? 'block' : 'none';
-  $('extreme-warning-box').innerHTML = isExtreme ? WARN_EXTREME : WARN_ALL;
+  $('difficulty-warning').style.display = isExtreme || isAll ? 'block' : 'none';
+  $('difficulty-warning-box').innerHTML = isExtreme ? WARN_EXTREME : WARN_ALL;
 
   if (isExtreme) {
     if (preExtremeCount === null) preExtremeCount = questionCount;
@@ -1143,7 +1149,6 @@ function updatePoolCount() {
   const total = poolGenres().reduce((t, g) => t + countQuestions(g, selectedDifficulty), 0);
   $('pool-count').textContent = total;
   $startBtn.disabled = total === 0;
-  renderStatsLine();
   for (const key of GENRE_KEYS) {
     genreChips[key].querySelector('.chip-count').textContent = countQuestions(key, selectedDifficulty);
   }
@@ -1157,7 +1162,7 @@ function renderStatsLine() {
   el.innerHTML = '自己ベスト <span>' + st.best.score + '/' + st.best.total + '</span> ｜ プレイ <span>' + st.plays + '</span>回 ｜ 累計正答率 <span>' + pct + '%</span>';
 }
 
-// ── 制限時間（実時間ベース。バックグラウンドでのタイマー間引きの影響を受けない） ──
+// ── 制限時間（残り時間は実時間から計算する。裏のタブでタイマーが間引かれても、進み方はずれない） ──
 const timer = {
   id: null, duration: 0, deadline: 0, paused: null,
   start(seconds) {
@@ -1204,11 +1209,12 @@ function startGame() {
   const count = Math.min(questionCount, pool.length);
   if (count === 0) return;
 
-  // 未出題の問題を優先しつつ（直近の出題履歴を参照）、各グループ内の順序はランダムを保つ
-  const fresh = [], seen = [], recent = new Set(saveData.recentQ);
-  for (const q of shuffle(pool)) (recent.has(q.q) ? seen : fresh).push(q);
+  // 最後に出たのが古い問題から選ぶ（未出題が最優先）。同じ古さの中と、選んだ後の出題順はランダム
+  const historyIndex = new Map(saveData.recentQ.map((text, i) => [text, i]));
+  const lastShown = q => historyIndex.get(q.q) ?? -1; // 履歴の中の位置（小さいほど古い・未出題は -1）
+  const picked = shuffle(pool).sort((a, b) => lastShown(a) - lastShown(b)).slice(0, count);
   // 選択肢は毎回シャッフルし、正解番号を付け替える
-  questions = fresh.concat(seen).slice(0, count).map(q => {
+  questions = shuffle(picked).map(q => {
     const order = shuffle([0, 1, 2, 3]);
     return { ...q, o: order.map(i => q.o[i]), a: order.indexOf(q.a) };
   });
@@ -1266,7 +1272,7 @@ function showQuestion() {
     $options.appendChild(btn);
   });
 
-  timer.start(DIFFS[q.difficulty].timer);
+  timer.start(DIFFS[q.difficulty].timeLimit);
 }
 
 // 回答確定の共通処理（selectedIndex: 選択した選択肢の番号 / null = 時間切れ）
@@ -1280,11 +1286,11 @@ function revealAnswer(selectedIndex) {
     if (i === q.a) b.classList.add('correct');
   });
 
-  if (selectedIndex === q.a) {
+  const isCorrect = selectedIndex === q.a;
+  if (isCorrect) {
     score++;
     combo++;
-    confettiBurst(buttons[selectedIndex]);
-    SE.correct();
+    SE.correct(combo);
     flashScreen('correct-flash');
   } else {
     combo = 0;
@@ -1311,10 +1317,12 @@ function revealAnswer(selectedIndex) {
 
   $progress.style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
   $('exp-text').textContent = q.e;
+  $('exp-src').innerHTML = sourceLinks(q.s);
   $explanation.style.display = 'block';
   $nextBtn.style.display = 'block';
   $nextBtn.textContent = currentQuestion < questions.length - 1 ? '次の問題 →' : '結果を見る →';
-  $('exp-src').innerHTML = sourceLinks(q.s); // 進行に必要な表示を済ませてから組む
+  // 解説が出ると選択肢の位置が上にずれるので、紙吹雪はその後に出す
+  if (isCorrect) confettiBurst(buttons[selectedIndex]);
 }
 
 function nextQuestion() {
@@ -1334,7 +1342,7 @@ function showResult() {
   $('stat-correct').textContent = score;
   $('stat-wrong').textContent = wrongAnswers.length;
 
-  // スコアリングをリセットしてからアニメーション（円周は SVG の半径から求める）
+  // スコアの輪を空に戻してから、正答率の分だけ伸ばす（円周は SVG の半径から求める）
   const circle = $('circle-fill');
   const circumference = 2 * Math.PI * circle.r.baseVal.value;
   circle.style.strokeDasharray = circumference;
@@ -1344,11 +1352,11 @@ function showResult() {
   circle.style.transition = '';
   setTimeout(() => { circle.style.strokeDashoffset = circumference * (1 - pct); }, 100);
 
-  const { rank, title, message } = RANKS.find(r => pct >= r.min);
+  const { rank, title, message, fanfare } = RANKS.find(r => pct >= r.min);
   $('result-rank').textContent = rank;
   $('result-title').textContent = title;
   $('result-message').textContent = message;
-  if (pct >= 0.8) { confettiRain(); SE.fanfare(); }
+  if (fanfare) { confettiRain(); SE.fanfare(); }
   bgmEngine.setScene('result');
 
   // 戦績の更新（難易度別）
@@ -1420,8 +1428,9 @@ initParticles();
 buildDifficultyUI();
 buildGenreUI();
 buildCountUI();
-updateExtremeUI();
+updateDifficultyUI();
 updatePoolCount();
+renderStatsLine();
 
 [$startBtn, $('retry-btn')].forEach(btn => btn.addEventListener('click', startGame));
 [$('back-btn'), $('quit-btn')].forEach(btn => btn.addEventListener('click', returnToTitle));
@@ -1433,7 +1442,7 @@ $settingsOverlay.addEventListener('click', e => { if (e.target === $settingsOver
 $bgmVol.addEventListener('input', () => {
   volumes.bgm = $bgmVol.value / 100;
   renderVolumeUI();
-  bgmEngine.ensure();
+  bgmEngine.sync();
   persistSave();
 });
 $seVol.addEventListener('input', () => {
@@ -1442,6 +1451,30 @@ $seVol.addEventListener('input', () => {
   persistSave();
 });
 $seVol.addEventListener('change', SE.click);
+
+// 画面を切り替えた直後に届くダブルクリックの2回目は捨てる
+// （切り替え先で同じ位置に来たボタンを押してしまうため。例:「もう一度」の2回目が1問目の選択肢に当たる）
+document.addEventListener('click', e => {
+  if (e.detail >= 2 && performance.now() - screenShownAt < 500) { e.stopPropagation(); e.preventDefault(); }
+}, true);
+
+// 出典リンクをマウスで開くとフォーカスがリンクに残り、戻って Enter を押したときにリンクが開き直すので外しておく
+$explanation.addEventListener('click', e => {
+  const link = e.target.closest('a');
+  if (link && e.detail) link.blur();
+});
+
+// 別のタブが保存したら取り込む（各タブが、読み込んだ時点の内容で上書きし合わないように）
+window.addEventListener('storage', e => {
+  if (e.key !== STORAGE_KEY) return;
+  const latest = loadSave();
+  Object.assign(volumes, latest.volumes);
+  saveData.stats = latest.stats;
+  saveData.recentQ = latest.recentQ;
+  renderStatsLine();
+  renderVolumeUI();
+  bgmEngine.sync();
+});
 
 // キーボード操作（1〜4で回答 / Enter・Spaceで次へ / Escで設定を閉じる）
 document.addEventListener('keydown', e => {
@@ -1454,6 +1487,8 @@ document.addEventListener('keydown', e => {
     const btn = $options.querySelectorAll('.option-btn')[Number(e.key) - 1];
     if (btn) btn.click();
   } else if (answered && (e.key === 'Enter' || e.key === ' ')) {
+    // 中断・設定・出典リンクにフォーカスがあるときは、その要素本来の動作に任せる
+    if (e.target.closest('a, #quit-btn, #settings-btn')) return;
     e.preventDefault();
     nextQuestion();
   }
@@ -1463,22 +1498,23 @@ document.addEventListener('keydown', e => {
 // Esc キーなど、ブラウザがユーザー操作と認めないキーでも keydown は届くため、
 // resume() 後に running になったことを確認できるまでリスナーを解除しない
 const AUDIO_UNLOCK_EVENTS = ['pointerup', 'keydown', 'click'];
-function initAudioOnce() {
+function unlockAudio() {
+  if (!AudioCtx) return;
   const ctx = getAudioCtx();
   const finish = () => {
     if (ctx.state !== 'running') return;
-    AUDIO_UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, initAudioOnce));
-    bgmEngine.ensure();
+    AUDIO_UNLOCK_EVENTS.forEach(ev => document.removeEventListener(ev, unlockAudio));
+    bgmEngine.sync();
   };
   if (ctx.state === 'suspended') ctx.resume().then(finish).catch(() => {});
   else finish();
 }
-AUDIO_UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, initAudioOnce));
+AUDIO_UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, unlockAudio));
 
 // タブが裏に回ったらBGMを止め、戻ったら鳴らし直す（タイマー間引きによる断続再生の防止）
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) bgmEngine.stop();
-  else bgmEngine.ensure();
+  else bgmEngine.sync();
 });
 </script>
 </body>
