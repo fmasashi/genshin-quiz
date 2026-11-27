@@ -10,7 +10,11 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --gold: #e2b44d;
+      /* 透明度つきでも使う色は、成分を --xxx-rgb に持ち、rgba(var(--xxx-rgb), 0.3) の形で使う */
+      --gold-rgb: 226, 180, 77;
+      --correct-rgb: 74, 222, 128;
+      --wrong-rgb: 248, 113, 113;
+      --gold: rgb(var(--gold-rgb));
       --gold-light: #f5d88e;
       --gold-dark: #b8872e;
       --bg-deep: #0a0e1a;
@@ -22,9 +26,9 @@
       --accent-electro: #b08fc2;
       --text-primary: #eae4d9;
       --text-secondary: #9a9489;
-      --correct: #4ade80;
-      --wrong: #f87171;
-      --border-glow: rgba(226, 180, 77, 0.3);
+      --correct: rgb(var(--correct-rgb));
+      --wrong: rgb(var(--wrong-rgb));
+      --border-glow: rgba(var(--gold-rgb), 0.3);
       --font: 'Noto Sans JP', sans-serif;
     }
 
@@ -43,7 +47,7 @@
       background:
         radial-gradient(ellipse at 20% 50%, rgba(116, 194, 168, 0.08) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 20%, rgba(176, 143, 194, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(226, 180, 77, 0.06) 0%, transparent 50%);
+        radial-gradient(ellipse at 50% 80%, rgba(var(--gold-rgb), 0.06) 0%, transparent 50%);
       z-index: 0;
       animation: bgShift 20s ease-in-out infinite;
     }
@@ -75,13 +79,13 @@
       transition: opacity 0.15s ease-out;
     }
     .screen-flash.correct-flash {
-      box-shadow: inset 0 0 80px 20px rgba(74, 222, 128, 0.4);
-      border: 3px solid rgba(74, 222, 128, 0.6);
+      box-shadow: inset 0 0 80px 20px rgba(var(--correct-rgb), 0.4);
+      border: 3px solid rgba(var(--correct-rgb), 0.6);
       opacity: 1;
     }
     .screen-flash.wrong-flash {
-      box-shadow: inset 0 0 80px 20px rgba(248, 113, 113, 0.4);
-      border: 3px solid rgba(248, 113, 113, 0.6);
+      box-shadow: inset 0 0 80px 20px rgba(var(--wrong-rgb), 0.4);
+      border: 3px solid rgba(var(--wrong-rgb), 0.6);
       opacity: 1;
     }
 
@@ -91,7 +95,7 @@
     .logo-icon { width: 60px; height: 60px; margin: 0 auto 10px; }
     .logo-icon::before {
       content: '✦'; font-size: 48px; color: var(--gold);
-      text-shadow: 0 0 30px rgba(226, 180, 77, 0.5); animation: pulse 3s ease-in-out infinite;
+      text-shadow: 0 0 30px rgba(var(--gold-rgb), 0.5); animation: pulse 3s ease-in-out infinite;
     }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
@@ -119,12 +123,12 @@
       font-size: 13px; font-weight: 500; transition: all 0.3s ease;
       backdrop-filter: blur(10px);
     }
-    .diff-btn:hover { background: var(--bg-card-hover); border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(226, 180, 77, 0.2); }
+    .diff-btn:hover { background: var(--bg-card-hover); border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(var(--gold-rgb), 0.2); }
     .diff-btn.active, .count-btn.active {
-      background: linear-gradient(135deg, rgba(226, 180, 77, 0.2), rgba(226, 180, 77, 0.1));
+      background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.2), rgba(var(--gold-rgb), 0.1));
       border-color: var(--gold); color: var(--gold-light);
     }
-    .diff-btn.active { box-shadow: 0 0 20px rgba(226, 180, 77, 0.15); }
+    .diff-btn.active { box-shadow: 0 0 20px rgba(var(--gold-rgb), 0.15); }
 
     /* Genre chips */
     .genre-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
@@ -137,14 +141,14 @@
     }
     .genre-chip:hover { background: var(--bg-card-hover); border-color: var(--border-glow); }
     .genre-chip.active {
-      background: linear-gradient(135deg, rgba(226, 180, 77, 0.15), rgba(226, 180, 77, 0.08));
+      background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.15), rgba(var(--gold-rgb), 0.08));
       border-color: var(--gold); color: var(--gold-light);
     }
     .genre-chip .chip-count {
       font-size: 11px; background: rgba(255,255,255,0.06); padding: 2px 7px;
       border-radius: 10px; margin-left: 2px;
     }
-    .genre-chip.active .chip-count { background: rgba(226, 180, 77, 0.2); }
+    .genre-chip.active .chip-count { background: rgba(var(--gold-rgb), 0.2); }
 
     /* Question count */
     .count-options { display: flex; gap: 10px; justify-content: center; }
@@ -167,7 +171,7 @@
       color: var(--bg-deep); border: none; border-radius: 50px;
       font-size: 16px; font-weight: 700; transition: all 0.3s ease;
     }
-    .start-btn:hover, .retry-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(226, 180, 77, 0.4); }
+    .start-btn:hover, .retry-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(var(--gold-rgb), 0.4); }
     .start-btn { margin-top: 18px; padding: 12px 50px; letter-spacing: 4px; position: relative; overflow: hidden; }
     .start-btn::after {
       content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
@@ -195,10 +199,12 @@
     .quit-btn:hover { border-color: var(--wrong); color: var(--wrong); }
 
     .progress-bar, .timer-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-bottom: 6px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(226, 180, 77, 0.3); }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 2px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(var(--gold-rgb), 0.3); }
+    .timer-fill { height: 100%; border-radius: 2px; transition: width 0.05s linear, background-color 0.5s ease; background: var(--accent-anemo); }
+    .timer-fill.warning { background: var(--accent-pyro); }
 
     .question-card {
-      background: var(--bg-card); border: 1px solid rgba(226, 180, 77, 0.1);
+      background: var(--bg-card); border: 1px solid rgba(var(--gold-rgb), 0.1);
       border-radius: 10px; padding: 10px 16px; margin-bottom: 8px;
       backdrop-filter: blur(20px); position: relative; overflow: hidden;
     }
@@ -234,17 +240,17 @@
       border-radius: 5px; background: rgba(255,255,255,0.05);
       font-size: 11px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; transition: all 0.2s ease;
     }
-    .option-btn:hover:not(.disabled) .option-label { background: rgba(226, 180, 77, 0.2); color: var(--gold); }
-    .option-btn.correct { background: rgba(74, 222, 128, 0.1); border-color: var(--correct); box-shadow: 0 0 15px rgba(74, 222, 128, 0.1); }
+    .option-btn:hover:not(.disabled) .option-label { background: rgba(var(--gold-rgb), 0.2); color: var(--gold); }
+    .option-btn.correct { background: rgba(var(--correct-rgb), 0.1); border-color: var(--correct); box-shadow: 0 0 15px rgba(var(--correct-rgb), 0.1); }
     .option-btn.correct .option-label { background: var(--correct); color: var(--bg-deep); }
-    .option-btn.wrong { background: rgba(248, 113, 113, 0.1); border-color: var(--wrong); box-shadow: 0 0 15px rgba(248, 113, 113, 0.1); }
+    .option-btn.wrong { background: rgba(var(--wrong-rgb), 0.1); border-color: var(--wrong); box-shadow: 0 0 15px rgba(var(--wrong-rgb), 0.1); }
     .option-btn.wrong .option-label { background: var(--wrong); color: var(--bg-deep); }
     .option-btn.disabled { cursor: default; opacity: 0.5; }
     .option-btn.correct.disabled, .option-btn.wrong.disabled { opacity: 1; }
 
     .explanation {
-      margin-top: 8px; padding: 8px 12px; background: rgba(226, 180, 77, 0.05);
-      border: 1px solid rgba(226, 180, 77, 0.15); border-radius: 8px;
+      margin-top: 8px; padding: 8px 12px; background: rgba(var(--gold-rgb), 0.05);
+      border: 1px solid rgba(var(--gold-rgb), 0.15); border-radius: 8px;
       font-size: 12px; line-height: 1.5; color: var(--text-secondary); animation: fadeInUp 0.3s ease-out; display: none;
     }
     .explanation .exp-label { color: var(--gold); font-weight: 700; font-size: 10px; letter-spacing: 2px; margin-bottom: 2px; display: block; }
@@ -254,20 +260,17 @@
 
     .next-btn {
       display: none; margin: 8px auto 0; padding: 8px 36px;
-      background: linear-gradient(135deg, rgba(226, 180, 77, 0.2), rgba(226, 180, 77, 0.1));
+      background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.2), rgba(var(--gold-rgb), 0.1));
       border: 1px solid var(--gold); color: var(--gold-light); border-radius: 50px;
       font-size: 13px; font-weight: 600;
       transition: all 0.3s ease; letter-spacing: 2px; animation: fadeInUp 0.4s ease-out;
     }
-    .next-btn:hover { background: linear-gradient(135deg, rgba(226, 180, 77, 0.3), rgba(226, 180, 77, 0.15)); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(226, 180, 77, 0.2); }
-
-    .timer-fill { height: 100%; width: 100%; border-radius: 2px; transition: width 0.05s linear, background-color 0.5s ease; background: var(--accent-anemo); }
-    .timer-fill.warning { background: var(--accent-pyro); }
+    .next-btn:hover { background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.3), rgba(var(--gold-rgb), 0.15)); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(var(--gold-rgb), 0.2); }
 
     /* ===== RESULT SCREEN ===== */
     #result-screen { display: none; text-align: center; width: 100%; animation: fadeInUp 0.8s ease-out; }
     .result-card {
-      background: var(--bg-card); border: 1px solid rgba(226, 180, 77, 0.15);
+      background: var(--bg-card); border: 1px solid rgba(var(--gold-rgb), 0.15);
       border-radius: 20px; padding: 32px 28px; backdrop-filter: blur(20px); position: relative; overflow: hidden;
     }
     .result-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-pyro), var(--gold), var(--accent-electro)); }
@@ -300,14 +303,14 @@
       background: transparent; border: 1px solid var(--border-glow); color: var(--gold-light);
       border-radius: 50px; font-weight: 600; letter-spacing: 2px;
     }
-    .back-btn:hover, .settings-close-btn:hover { background: rgba(226, 180, 77, 0.08); }
+    .back-btn:hover, .settings-close-btn:hover { background: rgba(var(--gold-rgb), 0.08); }
     .back-btn { padding: 16px 36px; font-size: 14px; transition: all 0.3s ease; }
     .back-btn:hover { transform: translateY(-2px); }
 
     /* ===== COMBO ===== */
     .combo-badge {
       display: none; font-size: 12px; font-weight: 700; color: var(--gold);
-      padding: 2px 8px; border-radius: 10px; background: rgba(226, 180, 77, 0.12);
+      padding: 2px 8px; border-radius: 10px; background: rgba(var(--gold-rgb), 0.12);
     }
     .combo-badge.show { display: inline-block; }
     @keyframes comboPop { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
@@ -336,7 +339,7 @@
     .review-item .rv-q { font-size: 13px; font-weight: 700; margin-bottom: 6px; line-height: 1.5; }
     .review-item .rv-num {
       display: inline-block; color: var(--gold); font-size: 11px; font-weight: 700;
-      background: rgba(226, 180, 77, 0.12); padding: 1px 8px; border-radius: 8px; margin-right: 7px;
+      background: rgba(var(--gold-rgb), 0.12); padding: 1px 8px; border-radius: 8px; margin-right: 7px;
     }
     .review-item .rv-a { font-size: 12px; margin-bottom: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
     .review-item .rv-correct { color: var(--correct); font-weight: 600; }
@@ -391,7 +394,7 @@
     @keyframes shake { 0%, 100% { transform: translateX(0); } 10% { transform: translateX(-12px); } 30% { transform: translateX(10px); } 50% { transform: translateX(-8px); } 70% { transform: translateX(6px); } 90% { transform: translateX(-3px); } }
 
     .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
-    .confetti { position: absolute; top: -10px; animation: confettiFall linear forwards; }
+    .confetti { position: absolute; top: -14px; animation: confettiFall linear forwards; } /* 落ち始める前の粒（最大12px）が上端に見えない高さ */
     @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 
     @media (max-width: 600px) {
@@ -448,7 +451,7 @@
         <div class="genre-grid" id="genre-grid"></div>
       </div>
 
-      <div class="start-section" id="difficulty-warning" style="display: none;">
+      <div class="start-section" id="difficulty-warning">
         <div class="warning-box" id="difficulty-warning-box"></div>
       </div>
 
@@ -764,7 +767,7 @@ const DIFF_KEYS = Object.keys(DIFFS);
 const GENRE_KEYS = Object.keys(GENRES);
 const COUNT_CHOICES = [{ label: '10', value: 10 }, { label: '20', value: 20 }, { label: '全問', value: Infinity }];
 const EXTREME_COUNT = 10; // 超上級の出題数（固定）
-const RECENT_LIMIT = 200; // 出題履歴に残す問題数（全問題数より多ければ、全問の「最後に出た順」が残る）
+const HISTORY_LIMIT = 200; // 出題履歴に残す問題数（全問題数より多ければ、全問の「最後に出た順」が残る）
 const WIKI_BASE = 'https://wikiwiki.jp/genshinwiki/';
 const RANKS = [ // min: 正答率の下限 / fanfare: 紙吹雪とファンファーレで祝う
   { min: 1,   rank: 'SSS', title: '全知全能の旅人', message: '完璧！テイワットのすべてを知り尽くしています。あなたは真の冒険者です！', fanfare: true },
@@ -857,9 +860,7 @@ function escapeHtml(s) {
 
 const rand = (min, max) => min + Math.random() * (max - min);
 
-let screenShownAt = 0; // 画面を切り替えた時刻（直後に届くダブルクリックの2回目を捨てるのに使う）
 function showScreen(screen) {
-  screenShownAt = performance.now();
   [$start, $quiz, $result].forEach(s => { s.style.display = s === screen ? 'block' : 'none'; });
 }
 
@@ -925,9 +926,10 @@ const bgmEngine = {
     result: { bpm: 72, density: 0.65, high: true }, // high: メロディを高い音域に寄せる
   },
   setScene(scene) { this.scene = scene; this.sync(); },
-  // 音量設定に合わせて再生・停止・音量を揃える（AudioContextは初回のユーザー操作後に生成される）
+  // 音量設定とタブの表示状態に合わせて再生・停止・音量を揃える（AudioContextは初回のユーザー操作後に生成される）
+  // 裏のタブでは鳴らさない（タイマーが間引かれて音が途切れるため）
   sync() {
-    if (volumes.bgm <= 0 || !audioCtx) { this.stop(); return; }
+    if (volumes.bgm <= 0 || !audioCtx || document.hidden) { this.stop(); return; }
     if (!this.gainNode) {
       this.gainNode = audioCtx.createGain();
       this.gainNode.gain.value = 0;
@@ -1046,9 +1048,7 @@ function buildDifficultyUI() {
     btn.addEventListener('click', () => {
       selectedDifficulty = key;
       container.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b === btn));
-      updateDifficultyUI();
-      updatePoolCount();
-      renderStatsLine();
+      applyDifficulty();
     });
     container.appendChild(btn);
   });
@@ -1162,9 +1162,16 @@ function renderStatsLine() {
   el.innerHTML = '自己ベスト <span>' + st.best.score + '/' + st.best.total + '</span> ｜ プレイ <span>' + st.plays + '</span>回 ｜ 累計正答率 <span>' + pct + '%</span>';
 }
 
+// 選んだ難易度をスタート画面全体に反映する（起動時と、難易度を切り替えたとき）
+function applyDifficulty() {
+  updateDifficultyUI();
+  updatePoolCount();
+  renderStatsLine();
+}
+
 // ── 制限時間（残り時間は実時間から計算する。裏のタブでタイマーが間引かれても、進み方はずれない） ──
 const timer = {
-  id: null, duration: 0, deadline: 0, paused: null,
+  id: null, duration: 0, deadline: 0, pausedRemaining: null, // pausedRemaining: 一時停止中の残りミリ秒（停止中でなければ null）
   start(seconds) {
     this.duration = seconds * 1000;
     $timerFill.classList.remove('warning');
@@ -1188,17 +1195,17 @@ const timer = {
   stop() {
     clearInterval(this.id);
     this.id = null;
-    this.paused = null;
+    this.pausedRemaining = null;
   },
   // 設定パネルを開いている間の一時停止・再開
   pause() {
     if (!this.id) return;
     const remaining = Math.max(0, this.deadline - performance.now());
     this.stop();
-    this.paused = remaining;
+    this.pausedRemaining = remaining;
   },
   resume() {
-    if (this.paused !== null) this.run(this.paused);
+    if (this.pausedRemaining !== null) this.run(this.pausedRemaining);
   },
 };
 
@@ -1209,10 +1216,18 @@ function startGame() {
   const count = Math.min(questionCount, pool.length);
   if (count === 0) return;
 
-  // 最後に出たのが古い問題から選ぶ（未出題が最優先）。同じ古さの中と、選んだ後の出題順はランダム
+  // 未出題の問題が最優先。足りない分は、出題済みのうち最後に出たのが古いものから選ぶ。
+  // 古い順にそのまま取ると毎回同じ顔ぶれで巡るので、候補を「足りない数の2倍」まで広げて無作為に選ぶ
+  // （ただし、直前の回に出た問題までは広げない）。選んだ後の出題順はランダム
   const historyIndex = new Map(saveData.recentQ.map((text, i) => [text, i]));
   const lastShown = q => historyIndex.get(q.q) ?? -1; // 履歴の中の位置（小さいほど古い・未出題は -1）
-  const picked = shuffle(pool).sort((a, b) => lastShown(a) - lastShown(b)).slice(0, count);
+  const sorted = shuffle(pool).sort((a, b) => lastShown(a) - lastShown(b));
+  const unseenCount = sorted.filter(q => lastShown(q) < 0).length;
+  const unseen = sorted.slice(0, Math.min(unseenCount, count));
+  const seen = sorted.slice(unseenCount);
+  const lacking = count - unseen.length;
+  const candidates = Math.max(lacking, Math.min(lacking * 2, seen.length - count));
+  const picked = unseen.concat(shuffle(seen.slice(0, candidates)).slice(0, lacking));
   // 選択肢は毎回シャッフルし、正解番号を付け替える
   questions = shuffle(picked).map(q => {
     const order = shuffle([0, 1, 2, 3]);
@@ -1224,6 +1239,7 @@ function startGame() {
   wrongAnswers = [];
   renderTally();
   $comboBadge.classList.remove('show');
+  $progress.style.width = '0%';
   $('q-total').textContent = questions.length;
 
   showScreen($quiz);
@@ -1248,13 +1264,12 @@ function showQuestion() {
   const q = questions[currentQuestion];
 
   // 出題履歴に記録（実際に表示した問題のみ）
-  saveData.recentQ = saveData.recentQ.filter(k => k !== q.q).concat(q.q).slice(-RECENT_LIMIT);
+  saveData.recentQ = saveData.recentQ.filter(k => k !== q.q).concat(q.q).slice(-HISTORY_LIMIT);
   persistSave();
 
   $('q-current').textContent = currentQuestion + 1;
   $('q-category').textContent = q.category;
   $('q-text').textContent = q.q;
-  $progress.style.width = (currentQuestion / questions.length * 100) + '%';
   const badge = $('q-diff-badge');
   badge.textContent = DIFFS[q.difficulty].label;
   badge.className = 'question-difficulty-badge badge-' + q.difficulty;
@@ -1326,6 +1341,7 @@ function revealAnswer(selectedIndex) {
 }
 
 function nextQuestion() {
+  if (!answered) return;
   SE.click();
   currentQuestion++;
   if (currentQuestion < questions.length) showQuestion();
@@ -1428,9 +1444,7 @@ initParticles();
 buildDifficultyUI();
 buildGenreUI();
 buildCountUI();
-updateDifficultyUI();
-updatePoolCount();
-renderStatsLine();
+applyDifficulty();
 
 [$startBtn, $('retry-btn')].forEach(btn => btn.addEventListener('click', startGame));
 [$('back-btn'), $('quit-btn')].forEach(btn => btn.addEventListener('click', returnToTitle));
@@ -1438,7 +1452,10 @@ $nextBtn.addEventListener('click', nextQuestion);
 
 $('settings-btn').addEventListener('click', openSettings);
 $('settings-close').addEventListener('click', () => { SE.click(); closeSettings(); });
-$settingsOverlay.addEventListener('click', e => { if (e.target === $settingsOverlay) closeSettings(); });
+// パネルの外側をクリックしたら閉じる。パネルの中で押して外で離したときは閉じない
+let pressedOnOverlay = false;
+$settingsOverlay.addEventListener('mousedown', e => { pressedOnOverlay = e.target === $settingsOverlay; });
+$settingsOverlay.addEventListener('click', e => { if (e.target === $settingsOverlay && pressedOnOverlay) closeSettings(); });
 $bgmVol.addEventListener('input', () => {
   volumes.bgm = $bgmVol.value / 100;
   renderVolumeUI();
@@ -1452,17 +1469,21 @@ $seVol.addEventListener('input', () => {
 });
 $seVol.addEventListener('change', SE.click);
 
-// 画面を切り替えた直後に届くダブルクリックの2回目は捨てる
-// （切り替え先で同じ位置に来たボタンを押してしまうため。例:「もう一度」の2回目が1問目の選択肢に当たる）
-document.addEventListener('click', e => {
-  if (e.detail >= 2 && performance.now() - screenShownAt < 500) { e.stopPropagation(); e.preventDefault(); }
-}, true);
+// ダブルクリックの2回目以降は、1回目と同じボタンに当たったときだけ通す
+// （1回目で表示が変わると、同じ位置に来た別のボタンを押してしまうため。
+//   例:「もう一度」の2回目が1問目の選択肢に、設定の「閉じる」の2回目が背後の選択肢に当たる）
+// mousedown も止めるのは、押さなかったことにしたボタンへフォーカスが移らないようにするため
+let firstClickTarget = null;
+const clickable = el => el.closest('button, a, input') || el;
+for (const type of ['mousedown', 'click']) {
+  document.addEventListener(type, e => {
+    if (e.detail >= 2 && clickable(e.target) !== firstClickTarget) { e.stopPropagation(); e.preventDefault(); }
+    else if (type === 'click' && e.detail === 1) firstClickTarget = clickable(e.target);
+  }, true);
+}
 
-// 出典リンクをマウスで開くとフォーカスがリンクに残り、戻って Enter を押したときにリンクが開き直すので外しておく
-$explanation.addEventListener('click', e => {
-  const link = e.target.closest('a');
-  if (link && e.detail) link.blur();
-});
+// 出典リンクはマウスで押してもフォーカスを移さない（リンクに残ると、戻って Enter を押したときにリンクが開き直す）
+$explanation.addEventListener('mousedown', e => { if (e.target.closest('a')) e.preventDefault(); });
 
 // 別のタブが保存したら取り込む（各タブが、読み込んだ時点の内容で上書きし合わないように）
 window.addEventListener('storage', e => {
@@ -1490,7 +1511,7 @@ document.addEventListener('keydown', e => {
     // 中断・設定・出典リンクにフォーカスがあるときは、その要素本来の動作に任せる
     if (e.target.closest('a, #quit-btn, #settings-btn')) return;
     e.preventDefault();
-    nextQuestion();
+    if (!e.repeat) nextQuestion(); // 押しっぱなしでは進めない（回答に使った Enter が、そのまま解説を飛ばしてしまうため）
   }
 });
 
@@ -1511,11 +1532,8 @@ function unlockAudio() {
 }
 AUDIO_UNLOCK_EVENTS.forEach(ev => document.addEventListener(ev, unlockAudio));
 
-// タブが裏に回ったらBGMを止め、戻ったら鳴らし直す（タイマー間引きによる断続再生の防止）
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) bgmEngine.stop();
-  else bgmEngine.sync();
-});
+// タブが裏に回ったらBGMを止め、戻ったら鳴らし直す
+document.addEventListener('visibilitychange', () => bgmEngine.sync());
 </script>
 </body>
 </html>
